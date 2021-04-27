@@ -4,17 +4,12 @@ using Calendario.Core.Subjects;
 
 namespace Calendario.UnitTests.Subjects
 {
-    public class User
+    public class Group
     {
-        [SetUp]
-        public void Setup()
-        {
-        }
-
         [Test]
         public void Test1()
         {
-            var user = new User(){};
+            var user = new Group(){};
             Assert.Pass();
         }
     }
