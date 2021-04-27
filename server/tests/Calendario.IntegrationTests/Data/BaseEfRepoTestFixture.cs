@@ -15,7 +15,7 @@ namespace Calendario.IntegrationTests.Data
         protected static DbContextOptions<AppDbContext> CreateNewContextOptions()
         {
             var serviceProvider = new ServiceCollection()
-                // .AddEntityFrameworkInMemoryDatabase()
+                .AddEntityFrameworkSqlite()
                 .BuildServiceProvider();
 
             var builder = new DbContextOptionsBuilder<AppDbContext>();
