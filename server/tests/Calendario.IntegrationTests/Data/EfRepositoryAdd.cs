@@ -1,4 +1,5 @@
 using NUnit.Framework;
+using Calendario.Core;
 
 namespace Calendario.IntegrationTests.Data
 {
@@ -9,6 +10,7 @@ namespace Calendario.IntegrationTests.Data
         public void AddsItemAndSetsId()
         {
             var repository = GetRepository();
+            var relations = repository.ListAsync<Relation>();
         }
     }
 }
