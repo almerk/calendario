@@ -1,7 +1,7 @@
 using System;
 namespace Calendario.Core
 {
-    public record AccessPermissions
+    public sealed record AccessPermissions
     {
         public AccessPermissions(){}
         public AccessPermissions(Permissions permissions)

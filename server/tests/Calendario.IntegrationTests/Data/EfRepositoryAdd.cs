@@ -7,7 +7,7 @@ namespace Calendario.IntegrationTests.Data
     {
 
         [Test]
-        public void AddsItemAndSetsId()
+        public void AddsItemAndSetsId() 
         {
             var repository = GetRepository();
             var relations = repository.ListAsync<Relation>();

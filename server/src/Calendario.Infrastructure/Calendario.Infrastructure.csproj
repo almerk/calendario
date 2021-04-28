@@ -12,6 +12,7 @@
 
   <ItemGroup>
     <ProjectReference Include="..\Calendario.Core\Calendario.Core.csproj" />
+    <ProjectReference Include="..\Calendario.Core.Dates\Calendario.Core.Dates.csproj" />
   </ItemGroup>
 
 </Project>
