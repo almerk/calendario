@@ -13,7 +13,6 @@ namespace EFCoreApp.DataConfiguration.Objects
             .HasOne(x => x.Calendar)
             .WithMany(y => y.Events)
             .OnDelete(DeleteBehavior.Cascade);
-            builder.OwnsMany(x => x.Dates);
         }
     }
 }

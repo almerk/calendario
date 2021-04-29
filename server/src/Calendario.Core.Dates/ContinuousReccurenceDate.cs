@@ -2,12 +2,10 @@ using System;
 
 namespace Calendario.Core.Dates
 {
-    public class ContinuousReccurenceDate
+    public sealed record ContinuousReccurenceDate: Calendario.Core.Date
     {
-        public DateTime Start { get; }
+        public DateTime Start { get; init; }
         public DateTime End { get; }
-        public bool HasTime { get; }
-        public TimeZoneInfo TimeZone { get; }
-        public Reccurent.ReccurenceRule RRule { get; }
+        public Reccurent.ReccurenceRule RRule { get; init; }
     }
 }

@@ -9,7 +9,7 @@ namespace EFCoreApp.DataConfiguration
     {
         public void Configure(EntityTypeBuilder<ContinuousReccurenceDate> builder)
         {
-            
+            builder.OwnsOne(x => x.RRule);
         }
     }
 }

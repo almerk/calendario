@@ -3,11 +3,11 @@ using Calendario.Core;
 
 namespace Calendario.IntegrationTests.Data
 {
-    public class EfRepositoryAdd: BaseEfRepoTestFixture
+    public class EfRepositoryOperations: BaseEfRepoTestFixture
     {
 
         [Test]
-        public void AddsItemAndSetsId() 
+        public void RepositoryCreation_Success() 
         {
             var repository = GetRepository();
             var relations = repository.ListAsync<Relation>();
