@@ -63,7 +63,7 @@ namespace Calendario.Core.Dates.Reccurent
         {
             Frequency = frequency;
             Until = until;
-            Count = count ?? Count;
+            Count = count == Int32.MinValue ? Count : count;
             Interval = interval ?? Interval;
             BySecond = bySecond ?? BySecond;
             ByMinute = byMinute ?? ByMinute;

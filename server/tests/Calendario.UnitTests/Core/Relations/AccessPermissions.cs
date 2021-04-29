@@ -1,6 +1,6 @@
 using NUnit.Framework;
 using Calendario.Core;
-namespace Calendario.UnitTests
+namespace Calendario.UnitTests.Core
 {
     public class AccessPermissionsTests
     {

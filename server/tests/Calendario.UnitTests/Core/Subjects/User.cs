@@ -2,7 +2,7 @@ using NUnit.Framework;
 using Calendario.Core.Subjects;
 
 
-namespace Calendario.UnitTests.Subjects
+namespace Calendario.UnitTests.Core.Subjects
 {
     public class User
     {
