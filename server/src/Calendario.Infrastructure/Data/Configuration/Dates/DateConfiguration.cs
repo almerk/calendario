@@ -4,7 +4,7 @@ using Microsoft.EntityFrameworkCore.Metadata.Builders;
 using System;
 using Calendario.Core;
 
-namespace EFCoreApp.DataConfiguration
+namespace Calendario.Infrastructure.Data.Configuration
 {
     public class DateConfiguration : IEntityTypeConfiguration<Date>
     {

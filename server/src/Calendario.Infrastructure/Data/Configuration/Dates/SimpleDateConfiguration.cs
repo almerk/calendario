@@ -3,7 +3,7 @@ using Calendario.Core.Dates;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
 
-namespace EFCoreApp.DataConfiguration
+namespace Calendario.Infrastructure.Data.Configuration
 {
     public class SimpleDateConfiguration : IEntityTypeConfiguration<SimpleDate>
     {
