@@ -15,4 +15,9 @@
     <PackageReference Include="Swashbuckle.AspNetCore" Version="5.6.3" />
   </ItemGroup>
 
+  <ItemGroup>
+    <ProjectReference Include="..\Calendario.Infrastructure\Calendario.Infrastructure.csproj" />
+    <ProjectReference Include="..\Calendario.Core\Calendario.Core.csproj" />
+  </ItemGroup>
+
 </Project>
