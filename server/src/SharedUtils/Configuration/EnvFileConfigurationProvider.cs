@@ -10,8 +10,6 @@ namespace SharedUtils.Configuration
     public class EnvFileConfigurationProvider : ConfigurationProvider
     {
         const char KEY_VALUE_SPLITTER = '=';
-        const char NESTING_SYMBOL = '_';
-        const char DOTNET_NESTING_SYMBOL = ':';
         public string EnvFilePath { get; }
         public EnvFileConfigurationProvider(string envFilePath)
         {
@@ -31,7 +29,7 @@ namespace SharedUtils.Configuration
                     {
                         var splitted = line.Split(KEY_VALUE_SPLITTER, 2);
                         if (splitted.Length < 2) continue;
-                        var key = splitted[0].Replace(NESTING_SYMBOL, DOTNET_NESTING_SYMBOL);
+                        var key = splitted[0];
                         var value = splitted[1];
                         data.Add(key, value);
                     }

@@ -32,7 +32,7 @@ namespace Calendario.Web
         // This method gets called by the runtime. Use this method to add services to the container.
         public void ConfigureServices(IServiceCollection services)
         {
-            string connectionString = "";//Host={DB_HOST??"localhost"};Port=${DB_PORT??"5432"};Database=${POSTGRES_DB};Username=${POSTGRES_USER};Password=${POSTGRES_PASSWORD}
+            string connectionString = Configuration.GetPostgresConnectionString();
             services.AddDbContext(connectionString);
             services.AddControllers();
             services.AddSwaggerGen(c =>
