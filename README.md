@@ -10,5 +10,6 @@
  - dotnet tool install -g dotnet-aspnet-codegenerator
  - docker run -d -p 5432:5432 --env-file ./.env postgres
  - dotnet add package Npgsql.EntityFrameworkCore.PostgreSQL
+ - dotnet ef migrations add -p ./Calendario.Infrastructure/Calendario.Infrastructure.csproj -s ./Calendario.Web/Calendario.Web.csproj Initial
 
 
