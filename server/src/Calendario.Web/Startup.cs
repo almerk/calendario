@@ -12,6 +12,7 @@ using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
 using Microsoft.OpenApi.Models;
+using SharedUtils.Configuration;
 using Calendario.Infrastructure;
 
 namespace Calendario.Web
@@ -20,7 +21,10 @@ namespace Calendario.Web
     {
         public Startup(IConfiguration configuration)
         {
-            Configuration = configuration;
+            Configuration = new ConfigurationBuilder()
+                            .AddEnvFileConfiguration(configuration["EnvFilePath"])
+                            .AddConfiguration(configuration)
+                            .Build();
         }
 
         public IConfiguration Configuration { get; }
@@ -28,7 +32,8 @@ namespace Calendario.Web
         // This method gets called by the runtime. Use this method to add services to the container.
         public void ConfigureServices(IServiceCollection services)
         {
-            services.AddDbContext();                         
+            string connectionString = "";//Host={DB_HOST??"localhost"};Port=${DB_PORT??"5432"};Database=${POSTGRES_DB};Username=${POSTGRES_USER};Password=${POSTGRES_PASSWORD}
+            services.AddDbContext(connectionString);
             services.AddControllers();
             services.AddSwaggerGen(c =>
             {

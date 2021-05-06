@@ -18,6 +18,7 @@
   <ItemGroup>
     <ProjectReference Include="..\Calendario.Infrastructure\Calendario.Infrastructure.csproj" />
     <ProjectReference Include="..\Calendario.Core\Calendario.Core.csproj" />
+    <ProjectReference Include="..\SharedUtils\SharedUtils.csproj" />
   </ItemGroup>
 
 </Project>

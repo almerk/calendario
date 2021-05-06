@@ -5,7 +5,10 @@ namespace Calendario.Infrastructure
 {
     public static class StartupSetup
     {
-         public static void AddDbContext(this IServiceCollection services) =>
-            services.AddDbContext<AppDbContext>();
+        public static void AddDbContext(this IServiceCollection services, string connectionString) =>
+           services.AddDbContext<AppDbContext>(opts =>
+           {
+               opts.UseNpgsql(connectionString);
+           });
     }
 }
