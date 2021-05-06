@@ -13,6 +13,8 @@ namespace Calendario.Infrastructure
            {
                opts.UseNpgsql(connectionString);
            });
+        public static void AddRepository(this IServiceCollection services) =>
+            services.AddScoped<IRepository, EfRepository>();
         public static string GetPostgresConnectionString(this IConfiguration configuration)
         {
             Func<string, string> errorMsg = s => $"Environment variable {s} must be specified.";

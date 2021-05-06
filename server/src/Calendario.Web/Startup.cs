@@ -34,6 +34,7 @@ namespace Calendario.Web
         {
             string connectionString = Configuration.GetPostgresConnectionString();
             services.AddDbContext(connectionString);
+            services.AddRepository();           
             services.AddControllers();
             services.AddSwaggerGen(c =>
             {
