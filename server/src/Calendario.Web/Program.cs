@@ -9,7 +9,7 @@ using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
 using Microsoft.EntityFrameworkCore;
 using Calendario.Infrastructure.Data;
-
+using Calendario.Infrastructure.Services;
 
 namespace Calendario.Web
 {
@@ -26,11 +26,13 @@ namespace Calendario.Web
                 {
                     var context = services.GetRequiredService<AppDbContext>();
                     context.Database.Migrate();
+                    var seeder = services.GetRequiredService<InitialDbSeed>();
+                    seeder.SeedDbContext(context);
                 }
                 catch (Exception ex)
                 {
                     var logger = services.GetRequiredService<ILogger<Program>>();
-                    logger.LogError(ex, "An error occurred seeding the DB.");
+                    logger.LogError(ex, "An error occurred initializing the DB.");
                     return;
                 }
 
