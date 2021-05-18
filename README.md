@@ -12,4 +12,16 @@
  - dotnet add package Npgsql.EntityFrameworkCore.PostgreSQL
  - dotnet ef migrations add -p ./Calendario.Infrastructure/Calendario.Infrastructure.csproj -s ./Calendario.Web/Calendario.Web.csproj Initial
 
+## Requred .env file format
+```
+POSTGRES_PASSWORD=<password>
+POSTGRES_USER=<db_username>
+POSTGRES_DB=calendario_db
+DB_PORT=5432
+DB_HOST=localhost
+CALENDARIO_ADMIN_LOGIN=root
+CALENDARIO_ADMIN_NAME=<admin displayed name>
+CALENDARIO_ADMIN_PASSWORD=<admin password>
+```
+
 
