@@ -26,6 +26,8 @@ namespace Calendario.Web
                 {
                     var context = services.GetRequiredService<AppDbContext>();
                     context.Database.Migrate();
+                    var identityContext = services.GetRequiredService<IdentityContext>();
+                    identityContext.Database.Migrate();//Remove after identity moving
                     var seeder = services.GetRequiredService<InitialDbSeed>();
                     seeder.SeedDbContext(context);
                 }

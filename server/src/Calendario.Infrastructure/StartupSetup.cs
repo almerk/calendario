@@ -45,11 +45,15 @@ namespace Calendario.Infrastructure
         //TODO: Move Identity to separate service and configure provider
         public static void AddIdentityServices(this IServiceCollection services, IConfiguration configuration)
         {
-            services.AddDbContext<IdentityDbContext>(options =>  
+            services.AddDbContext<IdentityContext>(options =>
             {
-                options.UseSqlite(configuration.GetConnectionString("IdentityConnection"));
+                options.UseSqlite(configuration.GetConnectionString("IdentityConnection"), sql =>
+                {
+                    sql.MigrationsAssembly(System.Reflection.Assembly.GetExecutingAssembly().GetName().Name); 
+                });
                 options.LogTo(Console.WriteLine);
             });
+            
             services.AddDefaultIdentity<IdentityUser>(options =>
             {
                 options.Password.RequireDigit = false;
@@ -68,17 +72,17 @@ namespace Calendario.Infrastructure
                 "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789-._@+";
                 options.User.RequireUniqueEmail = true;
             })
-            .AddEntityFrameworkStores<IdentityDbContext>();
-             services.ConfigureApplicationCookie(options =>
-            {
+            .AddEntityFrameworkStores<IdentityContext>();
+            services.ConfigureApplicationCookie(options =>
+           {
                 // Cookie settings
                 options.Cookie.HttpOnly = true;
-                options.ExpireTimeSpan = TimeSpan.FromMinutes(5);
+               options.ExpireTimeSpan = TimeSpan.FromMinutes(5);
 
-                options.LoginPath = "/Identity/Account/Login";
-                options.AccessDeniedPath = "/Identity/Account/AccessDenied";
-                options.SlidingExpiration = true;
-            });
+               options.LoginPath = "/Identity/Account/Login";
+               options.AccessDeniedPath = "/Identity/Account/AccessDenied";
+               options.SlidingExpiration = true;
+           });
         }
     }
 }
