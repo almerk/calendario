@@ -1,19 +1,13 @@
 using System;
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
-using System.Linq;
-using System.Text;
-using System.Text.Encodings.Web;
 using System.Threading.Tasks;
 using Calendario.Infrastructure.Data;
 using Calendario.Core.Subjects;
 using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
-using Microsoft.AspNetCore.Identity.UI.Services;
-using Microsoft.AspNetCore.Mvc;
-using Microsoft.AspNetCore.Mvc.RazorPages;
-using Microsoft.AspNetCore.WebUtilities;
+
 
 namespace Calendario.Infrastructure.Services.Account
 {
@@ -36,24 +30,37 @@ namespace Calendario.Infrastructure.Services.Account
         public class RegisterModel
         {
             [Required]
-            public string UserName { get; set; }
-
+            public string Login { get; set; }
             [Required]
+            public string Name { get; set; }
+            public string Surname { get; set; }
+            public string Patronymic { get; set; }
+
             public string Password { get; set; }
 
             [Required]
             public string GroupId { get; set; }
         }
 
+        public static bool Validate(RegisterModel model, out ICollection<ValidationResult> validationResults)
+        {
+            var context = new ValidationContext(model, serviceProvider: null, items: null);//TODO: check if i can do smth with context
+            validationResults = new List<ValidationResult>();
+            return Validator.TryValidateObject(model,context, validationResults);
+        }
+
         public class RegisterResult
         {
-            private RegisterResult() { }
+            internal RegisterResult() { }
 
-            public bool Success { get; init; }
+            public bool IsSuccess { get; internal set; }
 
-            public User Result { get; init; }
+            public User Result { get; internal set; }
 
-            public IEnumerable<IdentityError> IdentityErrors { get; set; } = new IdentityError[0];
+            public ICollection<IdentityError> IdentityErrors { get; internal set; } = new IdentityError[0];
+
+            public ICollection<ValidationResult> ValidationResults { get; internal set; } = new ValidationResult[0];
+            public Exception InnerException { get; internal set; }
 
         }
 
@@ -69,8 +76,35 @@ namespace Calendario.Infrastructure.Services.Account
 
         public async Task<RegisterResult> RegisterUserWithNoIdentity(RegisterModel model)
         {
-                      
-            throw new NotImplementedException();
+            var res = new RegisterUserService.RegisterResult();
+            ICollection<ValidationResult> validationResults;
+            if(!Validate(model, out validationResults))
+            {
+                res.ValidationResults = validationResults;
+                return res;
+            }
+            try
+            {
+                var group = await _repository.GetByIdAsync<Group>(model.GroupId);
+                if (group is null)
+                    throw new ApplicationException($"Unable to find group with id {model.GroupId}.");//TODO: Add specific domain exception
+                var newUser = new User()
+                {
+                    Login = model.Login,
+                    Name = model.Name,
+                    Surname = model.Surname,
+                    Patronymic = model.Patronymic,
+                    Group = group
+                };
+                newUser = await _repository.AddAsync(newUser);
+                res.IsSuccess = true;
+                res.Result = newUser;
+            }
+            catch (Exception ex)//TODO: Handle only specific exceptions (Such as unique constraint)
+            {
+                res.InnerException = ex;
+            }
+            return res;
         }
 
     }
