@@ -7,7 +7,7 @@ using Microsoft.EntityFrameworkCore;
 
 namespace Calendario.Infrastructure.Data
 {
-    public class EfRepository : IRepository
+    public class EfRepository : IRepository, IDisposable
     {
         private readonly AppDbContext _dbContext;
 
@@ -51,6 +51,11 @@ namespace Calendario.Infrastructure.Data
         {
             _dbContext.Entry(entity).State = EntityState.Modified;
             await _dbContext.SaveChangesAsync();
+        }
+
+        public void Dispose()
+        {
+            _dbContext?.Dispose();
         }
     }
 }
