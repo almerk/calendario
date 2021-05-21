@@ -2,10 +2,10 @@ using NUnit.Framework;
 using Calendario.Core;
 using Calendario.Core.Subjects;
 using Calendario.IntegrationTests.Data;
-using Calendario.Infrastructure.Data;
 using Calendario.Infrastructure.Services.Account;
 using System.Threading.Tasks;
 using System.Linq;
+using System;
 
 namespace Calendario.IntegrationTests.Services.Account
 {
@@ -46,7 +46,6 @@ namespace Calendario.IntegrationTests.Services.Account
             var result = await registerUserService.RegisterUserWithNoIdentity(model);
             Assert.False(result.IsSuccess);
             Assert.True(result.ValidationResults.Any());
-            Assert.Null(result.InnerException);
 
         }
         [Test]
@@ -63,7 +62,6 @@ namespace Calendario.IntegrationTests.Services.Account
             var result = await registerUserService.RegisterUserWithNoIdentity(model);
             Assert.False(result.IsSuccess);
             Assert.True(result.ValidationResults.Any());
-            Assert.Null(result.InnerException);
 
         }
         [Test]
@@ -80,14 +78,12 @@ namespace Calendario.IntegrationTests.Services.Account
             var result = await registerUserService.RegisterUserWithNoIdentity(model);
             Assert.False(result.IsSuccess);
             Assert.True(result.ValidationResults.Any());
-            Assert.Null(result.InnerException);
-
         }
 
 
 
         [Test]
-        public async Task AddingCalendarioUserWithNotExistedGroupId_RegisterResultUnsuccessfullAndHasErrors()
+        public async Task AddingCalendarioUserWithNotExistedGroupId_ThrowsException()
         {
             var repository = GetRepository();
             var group = await repository.AddAsync(new Group() { Name = "TestGroup" });
@@ -100,9 +96,11 @@ namespace Calendario.IntegrationTests.Services.Account
                 Password = "123",
                 Name = "User",
             };
-            var result = await registerUserService.RegisterUserWithNoIdentity(model);
-            Assert.False(result.IsSuccess);
-            Assert.NotNull(result.InnerException);
+            Assert.ThrowsAsync<ApplicationException>(async () =>
+            {
+                await registerUserService.RegisterUserWithNoIdentity(model);
+            });
+
         }
         [Test]
         public async Task AddingCalendarioUserWithSameLogin_RegisterResultNotSuccessAndHasErrors()
@@ -129,7 +127,7 @@ namespace Calendario.IntegrationTests.Services.Account
             };
             var result = await registerUserService.RegisterUserWithNoIdentity(sameLoginModel);
             Assert.False(result.IsSuccess);
-            Assert.NotNull(result.InnerException);
+            Assert.True(result.ValidationResults.Any());
         }
     }
 }

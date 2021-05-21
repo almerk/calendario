@@ -9,7 +9,7 @@ namespace Calendario.Infrastructure.Data
     public interface IRepository
     {
         Task<T> GetByIdAsync<T>(string id) where T : Entity;
-        Task<List<T>> ListAsync<T>(System.Linq.Expressions.Expression<Func<T, bool>> queryPredicate) where T : class; 
+        Task<List<T>> ListAsync<T>(System.Linq.Expressions.Expression<Func<T, bool>> queryPredicate = null) where T : class;
         Task<T> AddAsync<T>(T entity) where T : class;
         Task UpdateAsync<T>(T entity) where T : Entity;
         Task DeleteAsync<T>(T entity) where T : class;

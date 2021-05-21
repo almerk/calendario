@@ -1,4 +1,5 @@
 using System;
+using System.Linq;
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 using System.Threading.Tasks;
@@ -7,7 +8,7 @@ using Calendario.Core.Subjects;
 using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
-
+using Microsoft.EntityFrameworkCore;
 
 namespace Calendario.Infrastructure.Services.Account
 {
@@ -46,7 +47,7 @@ namespace Calendario.Infrastructure.Services.Account
         {
             var context = new ValidationContext(model, serviceProvider: null, items: null);//TODO: check if i can do smth with context
             validationResults = new List<ValidationResult>();
-            return Validator.TryValidateObject(model,context, validationResults);
+            return Validator.TryValidateObject(model, context, validationResults);
         }
 
         public class RegisterResult
@@ -60,7 +61,6 @@ namespace Calendario.Infrastructure.Services.Account
             public ICollection<IdentityError> IdentityErrors { get; internal set; } = new IdentityError[0];
 
             public ICollection<ValidationResult> ValidationResults { get; internal set; } = new ValidationResult[0];
-            public Exception InnerException { get; internal set; }
 
         }
 
@@ -78,32 +78,32 @@ namespace Calendario.Infrastructure.Services.Account
         {
             var res = new RegisterUserService.RegisterResult();
             ICollection<ValidationResult> validationResults;
-            if(!Validate(model, out validationResults))
+            if (!Validate(model, out validationResults))
             {
                 res.ValidationResults = validationResults;
                 return res;
             }
-            try
+            var group = await _repository.GetByIdAsync<Group>(model.GroupId);
+            if (group is null)
+                throw new ApplicationException($"Unable to find group with id {model.GroupId}."); //TODO: Add specific domain exception
+            var hasUserWithSameLogin = (await _repository.ListAsync<User>(x => x.Login == model.Login)).Any();
+            if (hasUserWithSameLogin)
             {
-                var group = await _repository.GetByIdAsync<Group>(model.GroupId);
-                if (group is null)
-                    throw new ApplicationException($"Unable to find group with id {model.GroupId}.");//TODO: Add specific domain exception
-                var newUser = new User()
-                {
-                    Login = model.Login,
-                    Name = model.Name,
-                    Surname = model.Surname,
-                    Patronymic = model.Patronymic,
-                    Group = group
-                };
-                newUser = await _repository.AddAsync(newUser);
-                res.IsSuccess = true;
-                res.Result = newUser;
+                res.ValidationResults = new[] { new ValidationResult("User with such login allready exists") };
+                return res;
             }
-            catch (Exception ex)//TODO: Handle only specific exceptions (Such as unique constraint)
+
+            var newUser = new User()
             {
-                res.InnerException = ex;
-            }
+                Login = model.Login,
+                Name = model.Name,
+                Surname = model.Surname,
+                Patronymic = model.Patronymic,
+                Group = group
+            };
+            newUser = await _repository.AddAsync(newUser);
+            res.IsSuccess = true;
+            res.Result = newUser;
             return res;
         }
 
