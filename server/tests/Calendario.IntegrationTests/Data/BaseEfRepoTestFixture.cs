@@ -3,6 +3,7 @@ using Calendario.Infrastructure.Data;
 using Microsoft.Data.Sqlite;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
+using NUnit.Framework;
 
 namespace Calendario.IntegrationTests.Data
 {
@@ -28,7 +29,8 @@ namespace Calendario.IntegrationTests.Data
 
             var builder = new DbContextOptionsBuilder<AppDbContext>();
             builder.UseSqlite(_connection)
-                    .LogTo(System.Console.WriteLine)
+                    //.LogTo(System.Console.WriteLine)
+                    .LogTo(TestContext.WriteLine)
                    .UseInternalServiceProvider(serviceProvider);
 
             return builder.Options;

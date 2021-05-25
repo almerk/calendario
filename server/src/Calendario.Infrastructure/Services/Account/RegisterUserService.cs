@@ -66,11 +66,14 @@ namespace Calendario.Infrastructure.Services.Account
 
         public async Task<RegisterResult> RegisterUserWithNewIdentity(RegisterModel model)
         {
-            //TODO: Check if calendario user allready exists
+
+
             throw new NotImplementedException();
         }
         public async Task<RegisterResult> RegisterUserWithExistedIdentity(RegisterModel model, IdentityUser user = null)
         {
+
+
             throw new NotImplementedException();
         }
 
@@ -86,7 +89,7 @@ namespace Calendario.Infrastructure.Services.Account
             var group = await _repository.GetByIdAsync<Group>(model.GroupId);
             if (group is null)
                 throw new ApplicationException($"Unable to find group with id {model.GroupId}."); //TODO: Add specific domain exception
-            var hasUserWithSameLogin = (await _repository.ListAsync<User>(x => x.Login == model.Login)).Any();
+            var hasUserWithSameLogin = (await _repository.ListAsync<User>(x => EF.Functions.Like(x.Login, model.Login))).Any();
             if (hasUserWithSameLogin)
             {
                 res.ValidationResults = new[] { new ValidationResult("User with such login allready exists") };

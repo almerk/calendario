@@ -103,7 +103,7 @@ namespace Calendario.IntegrationTests.Services.Account
 
         }
         [Test]
-        public async Task AddingCalendarioUserWithSameLogin_RegisterResultNotSuccessAndHasErrors()
+        public async Task AddingCalendarioUserWithSameLogin_ValidationFails()
         {
             var repository = GetRepository();
             var group = await repository.AddAsync(new Group() { Name = "TestGroup" });
@@ -120,7 +120,7 @@ namespace Calendario.IntegrationTests.Services.Account
 
             var sameLoginModel = new RegisterUserService.RegisterModel()
             {
-                Login = "TestUser",
+                Login = "testUser",
                 GroupId = group.Id,
                 Password = "1213",
                 Name = "User2",
