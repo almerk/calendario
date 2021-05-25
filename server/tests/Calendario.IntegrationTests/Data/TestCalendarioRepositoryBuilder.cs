@@ -10,7 +10,7 @@ namespace Calendario.IntegrationTests.Data
     //https://docs.microsoft.com/ru-ru/ef/core/testing/sqlite
     //https://github.com/almerk/calendario-proto/blob/master/tests/Calendario.IntegrationTests/Data/BaseEfRepoTestFixture.cs
 
-    public abstract class BaseEfRepoTestFixture : IDisposable
+    public class TestCalendarioRepositoryBuilder : IDisposable
     {
         protected AppDbContext _dbContext;
         protected SqliteConnection _connection;
@@ -20,7 +20,7 @@ namespace Calendario.IntegrationTests.Data
             _connection?.Dispose();
             _dbContext?.Dispose();
         }
-
+    
         protected DbContextOptions<AppDbContext> CreateNewContextOptions()
         {
             var serviceProvider = new ServiceCollection()
@@ -36,7 +36,7 @@ namespace Calendario.IntegrationTests.Data
             return builder.Options;
         }
 
-        protected EfRepository GetRepository()
+        public EfRepository Build()
         {
             _connection = new SqliteConnection("DataSource=:memory:");
             _connection.Open();

@@ -49,11 +49,15 @@ namespace Calendario.Infrastructure
             {
                 options.UseSqlite(configuration.GetConnectionString("IdentityConnection"), sql =>
                 {
-                    sql.MigrationsAssembly(System.Reflection.Assembly.GetExecutingAssembly().GetName().Name); 
+                    sql.MigrationsAssembly(System.Reflection.Assembly.GetExecutingAssembly().GetName().Name);
                 });
-                options.LogTo(Console.WriteLine);
+                options.LogTo(m => System.Diagnostics.Debug.WriteLine(m));
             });
-            
+
+            services.BuildServiceProvider()
+            .GetRequiredService<IdentityContext>()
+            .Database.Migrate();
+
             services.AddDefaultIdentity<IdentityUser>(options =>
             {
                 options.Password.RequireDigit = false;
@@ -75,8 +79,8 @@ namespace Calendario.Infrastructure
             .AddEntityFrameworkStores<IdentityContext>();
             services.ConfigureApplicationCookie(options =>
            {
-                // Cookie settings
-                options.Cookie.HttpOnly = true;
+               // Cookie settings
+               options.Cookie.HttpOnly = true;
                options.ExpireTimeSpan = TimeSpan.FromMinutes(5);
 
                options.LoginPath = "/Identity/Account/Login";

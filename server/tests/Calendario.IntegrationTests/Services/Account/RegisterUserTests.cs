@@ -6,19 +6,45 @@ using Calendario.Infrastructure.Services.Account;
 using System.Threading.Tasks;
 using System.Linq;
 using System;
+using Microsoft.Extensions.DependencyInjection;
+using Calendario.Infrastructure.Data;
+using Calendario.Infrastructure;
+using Microsoft.Extensions.Configuration;
+using System.Collections.Generic;
+using Microsoft.EntityFrameworkCore;
 
 namespace Calendario.IntegrationTests.Services.Account
 {
-    public class RegisterUserTests : BaseEfRepoTestFixture
+    public class RegisterUserTests
     {
+        IServiceProvider _provider;
+        IConfiguration _configuration;
+
+        [SetUp]
+        public void SetUp()
+        {
+            _configuration = new ConfigurationBuilder()
+                            .AddInMemoryCollection(new Dictionary<string, string>(){
+                                {"ConnectionStrings:IdentityConnection","DataSource=test.auth.db;Cache=Shared"}
+                            })
+                            .Build();
+            var repo = new TestCalendarioRepositoryBuilder().Build();
+            _provider = new ServiceProviderBuilder()
+                        .ConfigureServiceCollection(services =>
+                        {
+                            services.AddScoped<IRepository, EfRepository>(p => repo);
+                            services.AddIdentityServices(_configuration);
+                            services.AddScoped<RegisterUserService>();
+                        })
+                        .Build();
+        }
 
         [Test]
         public async Task AddingCalendarioUser_RegisterResultSuccessAndContainsUser()
         {
-            var repository = GetRepository();
+            var repository = _provider.GetService<IRepository>();
             var group = await repository.AddAsync(new Group() { Name = "TestGroup" });
-            var registerUserService = new RegisterUserService(null, null, repository);
-
+            var registerUserService = _provider.GetService<RegisterUserService>();
             var model = new RegisterUserService.RegisterModel()
             {
                 Login = "TestUser",
@@ -85,7 +111,7 @@ namespace Calendario.IntegrationTests.Services.Account
         [Test]
         public async Task AddingCalendarioUserWithNotExistedGroupId_ThrowsException()
         {
-            var repository = GetRepository();
+            var repository = _provider.GetService<IRepository>();
             var group = await repository.AddAsync(new Group() { Name = "TestGroup" });
             var registerUserService = new RegisterUserService(null, null, repository);
 
@@ -105,7 +131,7 @@ namespace Calendario.IntegrationTests.Services.Account
         [Test]
         public async Task AddingCalendarioUserWithSameLogin_ValidationFails()
         {
-            var repository = GetRepository();
+            var repository = _provider.GetService<IRepository>();
             var group = await repository.AddAsync(new Group() { Name = "TestGroup" });
             var registerUserService = new RegisterUserService(null, null, repository);
 
