@@ -14,16 +14,13 @@ namespace Calendario.Infrastructure.Services.Account
 {
     public sealed class RegisterUserService
     {
-        private readonly SignInManager<IdentityUser> _signInManager;
         private readonly UserManager<IdentityUser> _userManager;
         private readonly IRepository _repository;
 
         public RegisterUserService(
-            SignInManager<IdentityUser> signInManager,
             UserManager<IdentityUser> userManager,
             IRepository repository)
         {
-            _signInManager = signInManager;
             _userManager = userManager;
             _repository = repository;
         }
@@ -56,7 +53,7 @@ namespace Calendario.Infrastructure.Services.Account
 
             public bool IsSuccess { get; internal set; }
 
-            public User Result { get; internal set; }
+            public User? Result { get; internal set; }
 
             public ICollection<IdentityError> IdentityErrors { get; internal set; } = new IdentityError[0];
 
@@ -64,20 +61,43 @@ namespace Calendario.Infrastructure.Services.Account
 
         }
 
-        public async Task<RegisterResult> RegisterUserWithNewIdentity(RegisterModel model)
+        public async Task<RegisterResult> RegisterUser(RegisterModel model)
         {
-
-
-            throw new NotImplementedException();
+            var res = new RegisterUserService.RegisterResult();
+            ICollection<ValidationResult> validationResults;
+            if (!Validate(model, out validationResults))
+            {
+                res.ValidationResults = validationResults;
+                return res;
+            }
+            var identityResult = await RegisterIdentityUser(model);
+            if(!identityResult.IsSuccess)
+            {
+                return identityResult;
+            }
+            var calendarioResult = await RegisterCalendarioUser(model);
+            return calendarioResult;
         }
-        public async Task<RegisterResult> RegisterUserWithExistedIdentity(RegisterModel model, IdentityUser user = null)
+        public async Task<RegisterResult> RegisterIdentityUser(RegisterModel model)
         {
-
-
-            throw new NotImplementedException();
+            var res = new RegisterUserService.RegisterResult();
+            ICollection<ValidationResult> validationResults;
+            if (!Validate(model, out validationResults))
+            {
+                res.ValidationResults = validationResults;
+                return res;
+            }
+            var identityResult = await _userManager.CreateAsync(new IdentityUser(){ UserName = model.Login}, model.Password);
+            if(!identityResult.Succeeded)
+            {
+                res.IdentityErrors = identityResult.Errors.ToList();
+                return res;
+            }
+            res.IsSuccess = true;
+            return res;
         }
 
-        public async Task<RegisterResult> RegisterUserWithNoIdentity(RegisterModel model)
+        public async Task<RegisterResult> RegisterCalendarioUser(RegisterModel model)
         {
             var res = new RegisterUserService.RegisterResult();
             ICollection<ValidationResult> validationResults;
