@@ -18,22 +18,16 @@ namespace Calendario.IntegrationTests.Services.Account
     public class RegisterUserTests
     {
         IServiceProvider _provider;
-        IConfiguration _configuration;
 
         [SetUp]
         public void SetUp()
         {
-            _configuration = new ConfigurationBuilder()
-                            .AddInMemoryCollection(new Dictionary<string, string>(){
-                                {"ConnectionStrings:IdentityConnection","DataSource=test.auth.db;Cache=Shared"}
-                            })
-                            .Build();
             var repo = new TestCalendarioRepositoryBuilder().Build();
             _provider = new ServiceProviderBuilder()
                         .ConfigureServiceCollection(services =>
                         {
                             services.AddScoped<IRepository, EfRepository>(p => repo);
-                            services.AddIdentityServices(_configuration);
+                            services.AddMockedUserManager();
                             services.AddScoped<RegisterUserService>();
                         })
                         .Build();
@@ -52,7 +46,7 @@ namespace Calendario.IntegrationTests.Services.Account
                 GroupId = group.Id,
                 Password = "123"
             };
-            var result = await registerUserService.RegisterUserWithNoIdentity(model);
+            var result = await registerUserService.RegisterCalendarioUser(model);
             Assert.True(result.IsSuccess);
             Assert.NotNull(result.Result);
             Assert.NotNull(result.Result.Id);
@@ -61,7 +55,7 @@ namespace Calendario.IntegrationTests.Services.Account
         [Test]
         public async Task AddingUserWithNoGroup_ValidationFails()
         {
-            var registerUserService = new RegisterUserService(null, null, null);
+            var registerUserService = new RegisterUserService(null, null);
             var model = new RegisterUserService.RegisterModel()
             {
                 Login = "TestUser",
@@ -69,7 +63,7 @@ namespace Calendario.IntegrationTests.Services.Account
                 GroupId = null,
                 Password = "123"
             };
-            var result = await registerUserService.RegisterUserWithNoIdentity(model);
+            var result = await registerUserService.RegisterCalendarioUser(model);
             Assert.False(result.IsSuccess);
             Assert.True(result.ValidationResults.Any());
 
@@ -77,7 +71,7 @@ namespace Calendario.IntegrationTests.Services.Account
         [Test]
         public async Task AddingUserWithNoName_ValidationFails()
         {
-            var registerUserService = new RegisterUserService(null, null, null);
+            var registerUserService = new RegisterUserService(null, null);
             var model = new RegisterUserService.RegisterModel()
             {
                 Login = "TestUser",
@@ -85,7 +79,7 @@ namespace Calendario.IntegrationTests.Services.Account
                 GroupId = "null",
                 Password = "123"
             };
-            var result = await registerUserService.RegisterUserWithNoIdentity(model);
+            var result = await registerUserService.RegisterCalendarioUser(model);
             Assert.False(result.IsSuccess);
             Assert.True(result.ValidationResults.Any());
 
@@ -93,7 +87,7 @@ namespace Calendario.IntegrationTests.Services.Account
         [Test]
         public async Task AddingUserWithNoLogin_ValidationFails()
         {
-            var registerUserService = new RegisterUserService(null, null, null);
+            var registerUserService = new RegisterUserService(null, null);
             var model = new RegisterUserService.RegisterModel()
             {
                 Login = null,
@@ -101,7 +95,7 @@ namespace Calendario.IntegrationTests.Services.Account
                 GroupId = "1",
                 Password = "123"
             };
-            var result = await registerUserService.RegisterUserWithNoIdentity(model);
+            var result = await registerUserService.RegisterCalendarioUser(model);
             Assert.False(result.IsSuccess);
             Assert.True(result.ValidationResults.Any());
         }
@@ -113,7 +107,7 @@ namespace Calendario.IntegrationTests.Services.Account
         {
             var repository = _provider.GetService<IRepository>();
             var group = await repository.AddAsync(new Group() { Name = "TestGroup" });
-            var registerUserService = new RegisterUserService(null, null, repository);
+            var registerUserService = new RegisterUserService(null, repository);
 
             var model = new RegisterUserService.RegisterModel()
             {
@@ -124,7 +118,7 @@ namespace Calendario.IntegrationTests.Services.Account
             };
             Assert.ThrowsAsync<ApplicationException>(async () =>
             {
-                await registerUserService.RegisterUserWithNoIdentity(model);
+                await registerUserService.RegisterCalendarioUser(model);
             });
 
         }
@@ -133,7 +127,7 @@ namespace Calendario.IntegrationTests.Services.Account
         {
             var repository = _provider.GetService<IRepository>();
             var group = await repository.AddAsync(new Group() { Name = "TestGroup" });
-            var registerUserService = new RegisterUserService(null, null, repository);
+            var registerUserService = new RegisterUserService(null, repository);
 
             var model = new RegisterUserService.RegisterModel()
             {
@@ -142,7 +136,7 @@ namespace Calendario.IntegrationTests.Services.Account
                 Password = "123",
                 Name = "User",
             };
-            await registerUserService.RegisterUserWithNoIdentity(model);
+            await registerUserService.RegisterCalendarioUser(model);
 
             var sameLoginModel = new RegisterUserService.RegisterModel()
             {
@@ -151,7 +145,7 @@ namespace Calendario.IntegrationTests.Services.Account
                 Password = "1213",
                 Name = "User2",
             };
-            var result = await registerUserService.RegisterUserWithNoIdentity(sameLoginModel);
+            var result = await registerUserService.RegisterCalendarioUser(sameLoginModel);
             Assert.False(result.IsSuccess);
             Assert.True(result.ValidationResults.Any());
         }
