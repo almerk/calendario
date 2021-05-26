@@ -25,9 +25,10 @@ namespace Calendario.Web
                 try
                 {
                     var context = services.GetRequiredService<AppDbContext>();
+                    
                     context.Database.Migrate();
-                    var seeder = services.GetRequiredService<InitialDbSeed>();
-                    seeder.SeedDbContext(context);
+                    var seeder = services.GetRequiredService<InitialDbSeedService>();
+                    seeder.Seed().GetAwaiter().GetResult();
                 }
                 catch (Exception ex)
                 {

@@ -59,6 +59,11 @@ namespace Calendario.Infrastructure.Services.Account
 
             public ICollection<ValidationResult> ValidationResults { get; internal set; } = new ValidationResult[0];
 
+            public override string ToString()
+            {
+                return "IdentityErrors: ValidationErrors";
+            }
+        
         }
 
         public async Task<RegisterResult> RegisterUser(RegisterModel model)

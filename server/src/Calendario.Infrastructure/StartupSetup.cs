@@ -20,7 +20,7 @@ namespace Calendario.Infrastructure
             services.AddScoped<IRepository, EfRepository>();
 
         public static void AddAppConfiguration(this IServiceCollection services, Configuration configuration) => services.AddSingleton<Configuration>(configuration);
-        public static void AddAppDbInitialSeed(this IServiceCollection services) => services.AddScoped<InitialDbSeed>();
+        public static void AddAppDbInitialSeedService(this IServiceCollection services) => services.AddScoped<InitialDbSeedService>();
         public static string GetPostgresConnectionString(this IConfiguration configuration)
         {
             Func<string, string> errorMsg = s => $"Environment variable {s} must be specified.";
@@ -30,6 +30,7 @@ namespace Calendario.Infrastructure
                       Username={configuration["POSTGRES_USER"] ?? throw new ArgumentNullException(errorMsg("POSTGRES_USER"))};
                       Password={configuration["POSTGRES_PASSWORD"] ?? throw new ArgumentNullException(errorMsg("POSTGRES_PASSWORD"))};";
         }
+
 
         public static Configuration GetCalendarioConfiguration(this IConfiguration configuration)
         {

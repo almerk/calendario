@@ -14,6 +14,7 @@ using Microsoft.Extensions.Logging;
 using Microsoft.OpenApi.Models;
 using SharedUtils.Configuration;
 using Calendario.Infrastructure;
+using Calendario.Infrastructure.Services.Account;
 
 namespace Calendario.Web
 {
@@ -36,7 +37,9 @@ namespace Calendario.Web
 
             services.AddAppDbContext(Configuration.GetPostgresConnectionString());
             services.AddAppConfiguration(Configuration.GetCalendarioConfiguration());
-            services.AddAppDbInitialSeed();
+
+            services.AddScoped<RegisterUserService>();
+            services.AddAppDbInitialSeedService();
 
             services.AddRepository();
 
