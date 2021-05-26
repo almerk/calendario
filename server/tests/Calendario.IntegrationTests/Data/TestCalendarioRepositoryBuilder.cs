@@ -20,7 +20,7 @@ namespace Calendario.IntegrationTests.Data
             _connection?.Dispose();
             _dbContext?.Dispose();
         }
-    
+
         protected DbContextOptions<AppDbContext> CreateNewContextOptions()
         {
             var serviceProvider = new ServiceCollection()
@@ -30,7 +30,8 @@ namespace Calendario.IntegrationTests.Data
             var builder = new DbContextOptionsBuilder<AppDbContext>();
             builder.UseSqlite(_connection)
                     //.LogTo(System.Console.WriteLine)
-                    .LogTo(TestContext.WriteLine)
+                    //.LogTo(TestContext.WriteLine)
+                    .LogTo(s => System.Diagnostics.Debug.WriteLine(s))
                    .UseInternalServiceProvider(serviceProvider);
 
             return builder.Options;
