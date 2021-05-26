@@ -1,7 +1,9 @@
 using System;
 using System.Collections.Generic;
 using System.Threading.Tasks;
+using Calendario.Infrastructure.Data;
 using Microsoft.AspNetCore.Identity;
+using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
@@ -11,15 +13,23 @@ namespace Calendario.Infrastructure.Services.Account
 {
     public static class AddTestServiceExtensions
     {
-        public static IServiceCollection AddMockedUserManager(this IServiceCollection services, IUserStore<IdentityUser> userStore = null)
+
+
+        public static IServiceCollection AddInMemoryIdentityUserStorage(this IServiceCollection services)
         {
-            services.AddScoped<UserManager<IdentityUser>>(p => TestUserManager<IdentityUser>(userStore));
+            services.AddDbContext<IdentityContext>(options => options.UseInMemoryDatabase("identity-db"));
+            return services;
+        }
+
+        public static IServiceCollection AddMockedUserManager(this IServiceCollection services)
+        {
+            services.AddScoped<UserManager<IdentityUser>>(p => TestUserManager<IdentityUser>());
             return services;
         }
 
         private static UserManager<TUser> TestUserManager<TUser>(IUserStore<TUser> store = null) where TUser : class
         {
-            store = store ?? new Mock<IUserStore<TUser>>().Object;
+            store = store ?? new Mock<IUserPasswordStore<TUser>>().Object;
             var options = new Mock<IOptions<IdentityOptions>>();
             var idOptions = new IdentityOptions();
             idOptions.Lockout.AllowedForNewUsers = false;

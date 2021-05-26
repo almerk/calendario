@@ -27,6 +27,7 @@ namespace Calendario.IntegrationTests.Services.Account
                         .ConfigureServiceCollection(services =>
                         {
                             services.AddScoped<IRepository, EfRepository>(p => repo);
+                            services.AddInMemoryIdentityUserStorage();
                             services.AddMockedUserManager();
                             services.AddScoped<RegisterUserService>();
                         })
@@ -149,5 +150,20 @@ namespace Calendario.IntegrationTests.Services.Account
             Assert.False(result.IsSuccess);
             Assert.True(result.ValidationResults.Any());
         }
+
+        //[Test] Doesn't works cause by mocking
+        public async Task AddingIdentityUser_RegisterResultSuccess()
+        {
+            var registerUserService = _provider.GetService<RegisterUserService>();
+            var model = new RegisterUserService.RegisterModel()
+            {
+                Login = "TestUser",
+                Name = "User",
+                GroupId = "<not a real id>",
+                Password = "Aa_12345678"
+            };
+            var result = await registerUserService.RegisterIdentityUser(model);
+            Assert.True(result.IsSuccess);
+        }       
     }
 }
