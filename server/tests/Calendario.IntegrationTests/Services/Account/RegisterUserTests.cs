@@ -55,7 +55,7 @@ namespace Calendario.IntegrationTests.Services.Account
         [Test]
         public async Task AddingUserWithNoGroup_ValidationFails()
         {
-            var registerUserService = new RegisterUserService(null, null);
+            var registerUserService = _provider.GetService<RegisterUserService>();
             var model = new RegisterUserService.RegisterModel()
             {
                 Login = "TestUser",
@@ -71,7 +71,7 @@ namespace Calendario.IntegrationTests.Services.Account
         [Test]
         public async Task AddingUserWithNoName_ValidationFails()
         {
-            var registerUserService = new RegisterUserService(null, null);
+            var registerUserService = _provider.GetService<RegisterUserService>();
             var model = new RegisterUserService.RegisterModel()
             {
                 Login = "TestUser",
@@ -87,7 +87,7 @@ namespace Calendario.IntegrationTests.Services.Account
         [Test]
         public async Task AddingUserWithNoLogin_ValidationFails()
         {
-            var registerUserService = new RegisterUserService(null, null);
+            var registerUserService = _provider.GetService<RegisterUserService>();
             var model = new RegisterUserService.RegisterModel()
             {
                 Login = null,
@@ -107,7 +107,7 @@ namespace Calendario.IntegrationTests.Services.Account
         {
             var repository = _provider.GetService<IRepository>();
             var group = await repository.AddAsync(new Group() { Name = "TestGroup" });
-            var registerUserService = new RegisterUserService(null, repository);
+            var registerUserService = _provider.GetService<RegisterUserService>();
 
             var model = new RegisterUserService.RegisterModel()
             {
@@ -127,7 +127,7 @@ namespace Calendario.IntegrationTests.Services.Account
         {
             var repository = _provider.GetService<IRepository>();
             var group = await repository.AddAsync(new Group() { Name = "TestGroup" });
-            var registerUserService = new RegisterUserService(null, repository);
+            var registerUserService = _provider.GetService<RegisterUserService>();
 
             var model = new RegisterUserService.RegisterModel()
             {
