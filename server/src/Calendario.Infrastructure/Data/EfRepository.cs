@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Linq.Expressions;
 using System.Threading.Tasks;
 using Calendario.Core.Base;
 using Microsoft.EntityFrameworkCore;
@@ -37,15 +38,7 @@ namespace Calendario.Infrastructure.Data
             await _dbContext.SaveChangesAsync();
         }
 
-        public Task<List<T>> ListAsync<T>(System.Linq.Expressions.Expression<Func<T, bool>> queryPredicate = null) where T : class
-        {
-            IQueryable<T> values = _dbContext.Set<T>();
-            if (queryPredicate != null)
-            {
-                values = values.Where(queryPredicate);
-            }
-            return values.ToListAsync();
-        }
+
 
         public async Task UpdateAsync<T>(T entity) where T : Entity
         {
@@ -56,6 +49,22 @@ namespace Calendario.Infrastructure.Data
         public void Dispose()
         {
             _dbContext?.Dispose();
+        }
+
+        public Task<List<T>> ListAsync<T>(
+                                Expression<Func<T, bool>> queryPredicate = null,
+                                params Expression<Func<T, object>>[] includeProperties) where T : class
+        {
+            IQueryable<T> values = _dbContext.Set<T>().AsNoTracking();
+            if(includeProperties.Any())
+            {
+                values = includeProperties.Aggregate(values, (current, i) => current.Include(i));
+            }
+            if (queryPredicate != null)
+            {
+                values = values.Where(queryPredicate);
+            }
+            return values.ToListAsync();
         }
     }
 }
