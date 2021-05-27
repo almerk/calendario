@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.ComponentModel;
 using System.Linq;
 using System.Threading.Tasks;
 using Calendario.Core.Subjects;
@@ -26,12 +27,56 @@ namespace Calendario.Web.Areas.Admin.Pages.Users
             _logger = logger;
         }
 
-        public IList<IdentityUser> IdentityUsers { get; private set; }
-        public IList<User> CalendarioUsers { get; private set; }
+        public IList<IdentityUserView> IdentityUsers { get; private set; }
+        public IList<CalendarioUserView> CalendarioUsers { get; private set; }
         public async Task OnGetAsync()
         {
-            CalendarioUsers = await _repo.ListAsync<User>();
-            IdentityUsers = await _userManager.Users.ToListAsync();
+
+            var users = await _repo.ListAsync<User>(includeProperties: u => u.Group);
+            CalendarioUsers = (from u in users
+                               select new CalendarioUserView
+                               {
+                                   Id = u.Id,
+                                   Login = u.Login,
+                                   Name = u.Name,
+                                   Surname = u.Surname,
+                                   Patronymic = u.Patronymic,
+                                   GroupId = u.Group.Id,
+                                   GroupName = u.Group.Name
+                               }).ToList();
+
+            IdentityUsers = (from u in _userManager.Users.ToList()
+                             select new IdentityUserView()
+                             {
+                                 Id = u.Id,
+                                 UserName = u.UserName,
+                                 Email = u.Email
+                             }).ToList();
+        }
+
+        public class IdentityUserView
+        {
+            [DisplayName("Id")]
+            public string Id { get; set; }
+            [DisplayName("User name")]
+            public string UserName { get; set; }
+            [DisplayName("User email")]
+            public string Email { get; set; }
+        }
+
+        public class CalendarioUserView
+        {
+            [DisplayName("Id")]
+            public string Id { get; set; }
+            [DisplayName("Login")]
+            public string Login { get; set; }
+            public string Name { get; set; }
+            public string Surname { get; set; }
+            public string Patronymic { get; set; }
+
+            public string GroupId { get; set; }
+            [DisplayName("Group name")]
+            public string GroupName { get; set; }
         }
     }
 }
