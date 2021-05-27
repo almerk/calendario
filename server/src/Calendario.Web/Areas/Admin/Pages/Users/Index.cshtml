@@ -1,0 +1,85 @@
+@page
+@model IndexModel
+@{
+    ViewData["Title"] = "Users";
+}
+<article>
+    <h3>Calendario users <sup>@Model.CalendarioUsers.Count</sup></h3>
+    <table class="table">
+        <thead>
+            <th class="d-none">
+                @Html.DisplayNameFor(model => model.CalendarioUsers[0].Id)
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model.CalendarioUsers[0].Login)
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model.CalendarioUsers[0].Surname)
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model.CalendarioUsers[0].Name)
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model.CalendarioUsers[0].Patronymic)
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model.CalendarioUsers[0].Group.Name)
+            </th>
+        </thead>
+        <tbody>
+            @foreach (var item in Model.CalendarioUsers)
+            {
+                <td class="d-none">
+                    @Html.DisplayFor(modelItem => item.Id)
+                </td>
+                <td>
+                    @Html.DisplayFor(modelItem => item.Login)
+                </td>
+                <td>
+                    @Html.DisplayFor(modelItem => item.Surname)
+                </td>
+                <td>
+                    @Html.DisplayFor(modelItem => item.Name)
+                </td>
+                <td>
+                    @Html.DisplayFor(modelItem => item.Patronymic)
+                </td>
+                <td>
+                    @Html.DisplayFor(modelItem => item.Group.Name)
+                </td>
+            }
+        </tbody>
+    </table>
+</article>
+<article>
+    <h3>
+        Identity users <sup>@Model.IdentityUsers.Count</sup>
+    </h3>
+    <table class="table">
+        <thead>
+            <th class="d-none">
+                @Html.DisplayNameFor(model => model.IdentityUsers[0].Id)
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model.IdentityUsers[0].UserName)
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model.IdentityUsers[0].Email)
+            </th>
+        </thead>
+        <tbody>
+            @foreach (var item in Model.IdentityUsers)
+            {
+                <td class="d-none">
+                    @Html.DisplayFor(modelItem => item.Id)
+                </td>
+                <td>
+                    @Html.DisplayFor(modelItem => item.UserName)
+                </td>
+                <td>
+                    @Html.DisplayFor(modelItem => item.Email)
+                </td>
+            }
+        </tbody>
+    </table>
+</article>

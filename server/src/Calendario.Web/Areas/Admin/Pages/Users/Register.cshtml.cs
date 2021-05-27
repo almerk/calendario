@@ -14,12 +14,10 @@ using Microsoft.AspNetCore.Mvc.RazorPages;
 using Microsoft.AspNetCore.WebUtilities;
 using Microsoft.Extensions.Logging;
 
-namespace Calendario.Web.Areas.Identity.Pages.Account
+namespace Calendario.Web.Areas.Admin.Pages.Users
 {
     [AllowAnonymous]
     //TODO: Auth this page only for admin
-    //TODO: Show list of users with no identity
-    //TODO: Show list of identity users with no calendario account
     public class RegisterModel : PageModel
     {
         private readonly SignInManager<IdentityUser> _signInManager;
