@@ -27,8 +27,10 @@ namespace Calendario.Web.Areas.Admin.Pages.Users
             _logger = logger;
         }
 
+        public IList<IdentityUserView> IdentityUsersNotRegistered { get; private set; }
         public IList<IdentityUserView> IdentityUsers { get; private set; }
         public IList<CalendarioUserView> CalendarioUsers { get; private set; }
+        public IList<CalendarioUserView> CalendarioUsersWithNoIdentity { get; private set; }
         public async Task OnGetAsync()
         {
 
@@ -44,14 +46,22 @@ namespace Calendario.Web.Areas.Admin.Pages.Users
                                    GroupId = u.Group.Id,
                                    GroupName = u.Group.Name
                                }).ToList();
-
-            IdentityUsers = (from u in _userManager.Users.ToList()
+            IdentityUsers = (from u in await _userManager.Users.ToListAsync()
                              select new IdentityUserView()
                              {
                                  Id = u.Id,
                                  UserName = u.UserName,
                                  Email = u.Email
                              }).ToList();
+            var calendarioLogins = CalendarioUsers.Select(x => x.Login).ToList();
+            var identityUserNames = IdentityUsers.Select(x => x.UserName);
+
+            IdentityUsersNotRegistered = (from u in IdentityUsers
+                                          where !calendarioLogins.Contains(u.UserName)
+                                          select u).ToList();
+            CalendarioUsersWithNoIdentity = (from u in CalendarioUsers
+                                             where !identityUserNames.Contains(u.Login)
+                                             select u).ToList();
         }
 
         public class IdentityUserView

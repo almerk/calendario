@@ -43,7 +43,7 @@ namespace Calendario.Web.Areas.Admin.Pages.Users
         }
 
         [BindProperty]
-        public InputModel Input { get; set; }
+        public InputModel Input { get; set; } = new InputModel();
 
         public class InputModel
         {
@@ -68,13 +68,23 @@ namespace Calendario.Web.Areas.Admin.Pages.Users
             [Display(Name = "Confirm password")]
             [Compare("Password", ErrorMessage = "The password and confirmation password do not match.")]
             public string ConfirmPassword { get; set; }
+            [DisplayName("Is Identity user required")]
+            public bool IsIdentityRequired { get; set; } = true;
         }
 
         public SelectList GroupsSL { get; set; }
 
-        public async Task OnGetAsync()
+        public async Task OnGetAsync(string userName = null, string calendarioId = null)
         {
             await PopulateGroupsSelectList();
+            if (userName != null)
+            {
+                var identityUser = _userManager.Users.FirstOrDefault(u => u.UserName == userName);
+                if (identityUser == null)
+                    throw new ApplicationException($"Unable to get identity user with username ${userName}.");
+                Input.Login = userName;
+                Input.IsIdentityRequired = false;
+            }
         }
 
         private async Task PopulateGroupsSelectList()
@@ -98,7 +108,11 @@ namespace Calendario.Web.Areas.Admin.Pages.Users
                     Surname = Input.Surname
 
                 };
-                var result = await _registerService.RegisterUser(user);
+
+                var result = Input.IsIdentityRequired ?
+                        await _registerService.RegisterUser(user) :
+                        await _registerService.RegisterCalendarioUser(user);
+
                 if (result.IsSuccess)
                 {
                     _logger.LogInformation($"Created calendario user with new identity: {Input.Login}.");
@@ -112,7 +126,7 @@ namespace Calendario.Web.Areas.Admin.Pages.Users
                     }
                     foreach (var error in result.IdentityErrors)
                     {
-                        ModelState.AddModelError("Idenity Error", error.Description);
+                        ModelState.AddModelError("Identity Error", error.Description);
                     }
                 }
             }
