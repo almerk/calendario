@@ -5,14 +5,14 @@
 }
 <div class="row">
     <div class="col-md-4">
-        <form asp-route-returnUrl="@Model.ReturnUrl" method="post">
-            <h4>Create a new account with identity.</h4>
+        <form method="post">
+            <h4>Create a new Calendario User with new Identity</h4>
             <hr />
             <div asp-validation-summary="All" class="text-danger"></div>
             <div class="form-group">
-                <label asp-for="Input.UserName"></label>
-                <input asp-for="Input.UserName" class="form-control" />
-                <span asp-validation-for="Input.UserName" class="text-danger"></span>
+                <label asp-for="Input.Login"></label>
+                <input asp-for="Input.Login" class="form-control" />
+                <span asp-validation-for="Input.Login" class="text-danger"></span>
             </div>
             <div class="form-group">
                 <label asp-for="Input.Password"></label>
@@ -24,10 +24,31 @@
                 <input asp-for="Input.ConfirmPassword" class="form-control" />
                 <span asp-validation-for="Input.ConfirmPassword" class="text-danger"></span>
             </div>
+            <div class="form-group">
+                <label asp-for="Input.GroupId"></label>
+              <select asp-for="Input.GroupId" class="form-control"
+                    asp-items="Model.GroupsSL">
+                    <option value="">--Select group--</option>
+                </select>
+             <span asp-validation-for="Input.GroupId" class="text-danger">                 
+                </span>
+            </div>
+            <div class="form-group">
+                <label asp-for="Input.Name"></label>
+                <input asp-for="Input.Name" class="form-control" />
+            </div>
+            <div class="form-group">
+                <label asp-for="Input.Surname"></label>
+                <input asp-for="Input.Surname" class="form-control" />
+            </div>
+            <div class="form-group">
+                <label asp-for="Input.Patronymic"></label>
+                <input asp-for="Input.Patronymic" class="form-control" />
+            </div>
             <button type="submit" class="btn btn-primary">Register</button>
         </form>
-    </div>  
+    </div>
 </div>
 @section Scripts {
-    <partial name="_ValidationScriptsPartial" />
+<partial name="_ValidationScriptsPartial" />
 }

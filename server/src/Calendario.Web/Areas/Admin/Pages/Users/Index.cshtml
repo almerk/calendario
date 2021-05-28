@@ -3,6 +3,9 @@
 @{
     ViewData["Title"] = "Users";
 }
+<p>
+    <a asp-page="Register">Register new</a>
+</p>
 <article>
     <h3>Calendario users <sup>@Model.CalendarioUsers.Count</sup></h3>
     <table class="table">
@@ -29,24 +32,27 @@
         <tbody>
             @foreach (var item in Model.CalendarioUsers)
             {
-                <td class="d-none">
-                    @Html.DisplayFor(modelItem => item.Id)
-                </td>
-                <td>
-                    @Html.DisplayFor(modelItem => item.Login)
-                </td>
-                <td>
-                    @Html.DisplayFor(modelItem => item.Surname)
-                </td>
-                <td>
-                    @Html.DisplayFor(modelItem => item.Name)
-                </td>
-                <td>
-                    @Html.DisplayFor(modelItem => item.Patronymic)
-                </td>
-                <td>
-                    @Html.DisplayFor(modelItem => item.GroupName)
-                </td>
+                <tr>
+                    <td class="d-none">
+                        @Html.DisplayFor(modelItem => item.Id)
+                    </td>
+                    <td>
+                        @Html.DisplayFor(modelItem => item.Login)
+                    </td>
+                    <td>
+                        @Html.DisplayFor(modelItem => item.Surname)
+                    </td>
+                    <td>
+                        @Html.DisplayFor(modelItem => item.Name)
+                    </td>
+                    <td>
+                        @Html.DisplayFor(modelItem => item.Patronymic)
+                    </td>
+                    <td>
+                        @Html.DisplayFor(modelItem => item.GroupName)
+                    </td>
+                </tr>
+
             }
         </tbody>
     </table>
@@ -70,15 +76,17 @@
         <tbody>
             @foreach (var item in Model.IdentityUsers)
             {
-                <td class="d-none">
-                    @Html.DisplayFor(modelItem => item.Id)
-                </td>
-                <td>
-                    @Html.DisplayFor(modelItem => item.UserName)
-                </td>
-                <td>
-                    @Html.DisplayFor(modelItem => item.Email)
-                </td>
+                <tr>
+                    <td class="d-none">
+                        @Html.DisplayFor(modelItem => item.Id)
+                    </td>
+                    <td>
+                        @Html.DisplayFor(modelItem => item.UserName)
+                    </td>
+                    <td>
+                        @Html.DisplayFor(modelItem => item.Email)
+                    </td>
+                </tr>
             }
         </tbody>
     </table>

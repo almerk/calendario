@@ -1,16 +1,21 @@
 using System;
 using System.Collections.Generic;
+using System.ComponentModel;
 using System.ComponentModel.DataAnnotations;
 using System.Linq;
 using System.Text;
 using System.Text.Encodings.Web;
 using System.Threading.Tasks;
+using Calendario.Core.Subjects;
+using Calendario.Infrastructure.Data;
+using Calendario.Infrastructure.Services.Account;
 using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Identity.UI.Services;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.RazorPages;
+using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.AspNetCore.WebUtilities;
 using Microsoft.Extensions.Logging;
 
@@ -20,41 +25,44 @@ namespace Calendario.Web.Areas.Admin.Pages.Users
     //TODO: Auth this page only for admin
     public class RegisterModel : PageModel
     {
-        private readonly SignInManager<IdentityUser> _signInManager;
         private readonly UserManager<IdentityUser> _userManager;
         private readonly ILogger<RegisterModel> _logger;
-        private readonly IEmailSender _emailSender;
+        private readonly RegisterUserService _registerService;
+        private readonly IRepository _repository;
 
         public RegisterModel(
             UserManager<IdentityUser> userManager,
-            SignInManager<IdentityUser> signInManager,
             ILogger<RegisterModel> logger,
-            IEmailSender emailSender)
+            RegisterUserService registerService,
+            IRepository repository)
         {
             _userManager = userManager;
-            _signInManager = signInManager;
             _logger = logger;
-            _emailSender = emailSender;
+            _registerService = registerService;
+            _repository = repository;
         }
 
         [BindProperty]
         public InputModel Input { get; set; }
 
-        public string ReturnUrl { get; set; }
-
-        public IList<AuthenticationScheme> ExternalLogins { get; set; }
-
         public class InputModel
         {
-            [Required]
-            [Display(Name = "User Name")]
-            public string UserName { get; set; }
 
             [Required]
-            [StringLength(100, ErrorMessage = "The {0} must be at least {2} and at max {1} characters long.", MinimumLength = 6)]
+            [DisplayName("Group")]
+            public string GroupId { get; set; }
+
+            [Required]
+            [Display(Name = "Login")]
+            public string Login { get; set; }
+
+            public string Name { get; set; }
+            public string Surname { get; set; }
+            public string Patronymic { get; set; }
+
             [DataType(DataType.Password)]
             [Display(Name = "Password")]
-            public string Password { get; set; }
+            public string Password { get; set; } = string.Empty;
 
             [DataType(DataType.Password)]
             [Display(Name = "Confirm password")]
@@ -62,52 +70,53 @@ namespace Calendario.Web.Areas.Admin.Pages.Users
             public string ConfirmPassword { get; set; }
         }
 
-        public async Task OnGetAsync(string returnUrl = null)
+        public SelectList GroupsSL { get; set; }
+
+        public async Task OnGetAsync()
         {
-            ReturnUrl = returnUrl;
-            ExternalLogins = (await _signInManager.GetExternalAuthenticationSchemesAsync()).ToList();
+            await PopulateGroupsSelectList();
         }
 
-        public async Task<IActionResult> OnPostAsync(string returnUrl = null)
+        private async Task PopulateGroupsSelectList()
         {
-            returnUrl ??= Url.Content("~/");
-            ExternalLogins = (await _signInManager.GetExternalAuthenticationSchemesAsync()).ToList();
+            var groups = await _repository.ListAsync<Group>();
+            GroupsSL = new SelectList(groups, "Id", "Name");
+        }
+
+        public async Task<IActionResult> OnPostAsync()
+        {
+
             if (ModelState.IsValid)
             {
-                var user = new IdentityUser { UserName = Input.UserName };
-                var result = await _userManager.CreateAsync(user, Input.Password);
-                if (result.Succeeded)
+                var user = new RegisterUserService.RegisterModel()
                 {
-                    _logger.LogInformation("User created a new account with password.");
+                    GroupId = Input.GroupId,
+                    Login = Input.Login,
+                    Name = Input.Name,
+                    Password = Input.Password,
+                    Patronymic = Input.Patronymic,
+                    Surname = Input.Surname
 
-                    var code = await _userManager.GenerateEmailConfirmationTokenAsync(user);
-                    code = WebEncoders.Base64UrlEncode(Encoding.UTF8.GetBytes(code));
-                    var callbackUrl = Url.Page(
-                        "/Account/ConfirmEmail",
-                        pageHandler: null,
-                        values: new { area = "Identity", userId = user.Id, code = code, returnUrl = returnUrl },
-                        protocol: Request.Scheme);
-
-                    await _emailSender.SendEmailAsync(Input.UserName, "Confirm your email",
-                        $"Please confirm your account by <a href='{HtmlEncoder.Default.Encode(callbackUrl)}'>clicking here</a>.");
-
-                    if (_userManager.Options.SignIn.RequireConfirmedAccount)
-                    {
-                        return RedirectToPage("RegisterConfirmation", new { email = Input.UserName, returnUrl = returnUrl });
-                    }
-                    else
-                    {
-                        await _signInManager.SignInAsync(user, isPersistent: false);
-                        return LocalRedirect(returnUrl);
-                    }
+                };
+                var result = await _registerService.RegisterUser(user);
+                if (result.IsSuccess)
+                {
+                    _logger.LogInformation($"Created calendario user with new identity: {Input.Login}.");
+                    return RedirectToPage("./Index");
                 }
-                foreach (var error in result.Errors)
+                else
                 {
-                    ModelState.AddModelError(string.Empty, error.Description);
+                    foreach (var error in result.ValidationResults)
+                    {
+                        ModelState.AddModelError("Validation Error", error.ErrorMessage);
+                    }
+                    foreach (var error in result.IdentityErrors)
+                    {
+                        ModelState.AddModelError("Idenity Error", error.Description);
+                    }
                 }
             }
-
-            // If we got this far, something failed, redisplay form
+            await PopulateGroupsSelectList();
             return Page();
         }
     }

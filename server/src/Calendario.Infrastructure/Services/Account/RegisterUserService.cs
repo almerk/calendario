@@ -36,7 +36,7 @@ namespace Calendario.Infrastructure.Services.Account
 
             public string Password { get; set; }
 
-            [Required]
+            [Required(AllowEmptyStrings = false)]
             public string GroupId { get; set; }
         }
 
@@ -63,7 +63,7 @@ namespace Calendario.Infrastructure.Services.Account
             {
                 return "IdentityErrors: ValidationErrors";
             }
-        
+
         }
 
         public async Task<RegisterResult> RegisterUser(RegisterModel model)
@@ -76,7 +76,7 @@ namespace Calendario.Infrastructure.Services.Account
                 return res;
             }
             var identityResult = await RegisterIdentityUser(model);
-            if(!identityResult.IsSuccess)
+            if (!identityResult.IsSuccess)
             {
                 return identityResult;
             }
@@ -92,8 +92,8 @@ namespace Calendario.Infrastructure.Services.Account
                 res.ValidationResults = validationResults;
                 return res;
             }
-            var identityResult = await _userManager.CreateAsync(new IdentityUser(){ UserName = model.Login}, model.Password);
-            if(!identityResult.Succeeded)
+            var identityResult = await _userManager.CreateAsync(new IdentityUser() { UserName = model.Login }, model.Password);
+            if (!identityResult.Succeeded)
             {
                 res.IdentityErrors = identityResult.Errors.ToList();
                 return res;
