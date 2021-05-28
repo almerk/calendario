@@ -28,6 +28,8 @@
             <th>
                 @Html.DisplayNameFor(model => model.CalendarioUsers[0].GroupName)
             </th>
+            <th>
+            </th>
         </thead>
         <tbody>
             @foreach (var item in Model.CalendarioUsers)
@@ -51,30 +53,36 @@
                     <td>
                         @Html.DisplayFor(modelItem => item.GroupName)
                     </td>
+                    <td>
+                        @if(Model.CalendarioUsersWithNoIdentity.Contains(item))
+                        {
+                            <a asp-page="Register" asp-route-calendarioId="@item.Id">Register Identity</a>
+                        }
+                    </td>
                 </tr>
-
             }
         </tbody>
     </table>
 </article>
 <article>
     <h3>
-        Identity users <sup>@Model.IdentityUsers.Count</sup>
+        Identity users. not added to calendario <sup>@Model.IdentityUsersNotRegistered.Count</sup>
     </h3>
     <table class="table">
         <thead>
             <th class="d-none">
-                @Html.DisplayNameFor(model => model.IdentityUsers[0].Id)
+                @Html.DisplayNameFor(model => model.IdentityUsersNotRegistered[0].Id)
             </th>
             <th>
-                @Html.DisplayNameFor(model => model.IdentityUsers[0].UserName)
+                @Html.DisplayNameFor(model => model.IdentityUsersNotRegistered[0].UserName)
             </th>
             <th>
-                @Html.DisplayNameFor(model => model.IdentityUsers[0].Email)
+                @Html.DisplayNameFor(model => model.IdentityUsersNotRegistered[0].Email)
             </th>
+            <th></th>
         </thead>
         <tbody>
-            @foreach (var item in Model.IdentityUsers)
+            @foreach (var item in Model.IdentityUsersNotRegistered)
             {
                 <tr>
                     <td class="d-none">
@@ -85,6 +93,9 @@
                     </td>
                     <td>
                         @Html.DisplayFor(modelItem => item.Email)
+                    </td>
+                    <td>
+                        <a asp-page="Register" asp-route-userName="@item.UserName">Register Identity</a>
                     </td>
                 </tr>
             }
