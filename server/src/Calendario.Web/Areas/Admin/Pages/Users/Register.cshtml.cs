@@ -45,17 +45,18 @@ namespace Calendario.Web.Areas.Admin.Pages.Users
         [BindProperty]
         public InputModel Input { get; set; } = new InputModel();
 
+        public string HeaderMessage { get; set; } = "Create a new Calendario User with new Identity";
+        public bool IsIdentityNotExists { get; set; } = true;
+        public bool IsCalendarioNotExists { get; set; } = true;
         public class InputModel
         {
 
-            [Required]
             [DisplayName("Group")]
             public string GroupId { get; set; }
 
             [Required]
             [Display(Name = "Login")]
             public string Login { get; set; }
-
             public string Name { get; set; }
             public string Surname { get; set; }
             public string Patronymic { get; set; }
@@ -79,11 +80,21 @@ namespace Calendario.Web.Areas.Admin.Pages.Users
             await PopulateGroupsSelectList();
             if (userName != null)
             {
+                IsIdentityNotExists = false;
                 var identityUser = _userManager.Users.FirstOrDefault(u => u.UserName == userName);
                 if (identityUser == null)
                     throw new ApplicationException($"Unable to get identity user with username ${userName}.");
                 Input.Login = userName;
                 Input.IsIdentityRequired = false;
+            }
+            if (calendarioId != null)
+            {
+                IsCalendarioNotExists = false;
+                HeaderMessage = $"Add identity user for existed calendario one";
+                var calendarioUser = await _repository.GetByIdAsync<User>(calendarioId);
+                if (calendarioId == null)
+                    throw new ApplicationException($"Unable to get calendario user with id '{calendarioId}'.");
+                Input.Login = calendarioUser.Login;
             }
         }
 
@@ -93,9 +104,10 @@ namespace Calendario.Web.Areas.Admin.Pages.Users
             GroupsSL = new SelectList(groups, "Id", "Name");
         }
 
-        public async Task<IActionResult> OnPostAsync()
+        public async Task<IActionResult> OnPostAsync(string userName = null, string calendarioId = null)
         {
-
+            IsCalendarioNotExists = calendarioId == null;
+            IsIdentityNotExists = userName == null;
             if (ModelState.IsValid)
             {
                 var user = new RegisterUserService.RegisterModel()
@@ -108,14 +120,15 @@ namespace Calendario.Web.Areas.Admin.Pages.Users
                     Surname = Input.Surname
 
                 };
-
-                var result = Input.IsIdentityRequired ?
-                        await _registerService.RegisterUser(user) :
-                        await _registerService.RegisterCalendarioUser(user);
-
+                RegisterUserService.RegisterResult result =
+                        IsIdentityNotExists && IsCalendarioNotExists ?
+                                    Input.IsIdentityRequired ? await _registerService.RegisterUser(user) :
+                                                               await _registerService.RegisterCalendarioUser(user) :
+                                    IsIdentityNotExists ? await _registerService.RegisterIdentityUser(user) :
+                                                          await _registerService.RegisterCalendarioUser(user);
                 if (result.IsSuccess)
                 {
-                    _logger.LogInformation($"Created calendario user with new identity: {Input.Login}.");
+                    _logger.LogInformation($"Created user {Input.Login}.");
                     return RedirectToPage("./Index");
                 }
                 else

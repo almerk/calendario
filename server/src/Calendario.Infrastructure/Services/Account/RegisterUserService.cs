@@ -29,14 +29,11 @@ namespace Calendario.Infrastructure.Services.Account
         {
             [Required]
             public string Login { get; set; }
-            [Required]
             public string Name { get; set; }
             public string Surname { get; set; }
             public string Patronymic { get; set; }
 
             public string Password { get; set; }
-
-            [Required(AllowEmptyStrings = false)]
             public string GroupId { get; set; }
         }
 
@@ -92,6 +89,11 @@ namespace Calendario.Infrastructure.Services.Account
                 res.ValidationResults = validationResults;
                 return res;
             }
+            if (model.Password == null)
+            {
+                res.ValidationResults = new[] { new ValidationResult("Password is required") };
+                return res;
+            }
             var identityResult = await _userManager.CreateAsync(new IdentityUser() { UserName = model.Login }, model.Password);
             if (!identityResult.Succeeded)
             {
@@ -109,6 +111,11 @@ namespace Calendario.Infrastructure.Services.Account
             if (!Validate(model, out validationResults))
             {
                 res.ValidationResults = validationResults;
+                return res;
+            }
+            if (model.GroupId == null)
+            {
+                res.ValidationResults = new[] { new ValidationResult("Group field is required") };
                 return res;
             }
             var group = await _repository.GetByIdAsync<Group>(model.GroupId);
