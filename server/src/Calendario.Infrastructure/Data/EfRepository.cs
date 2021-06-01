@@ -16,16 +16,18 @@ namespace Calendario.Infrastructure.Data
         {
             _dbContext = dbContext;
         }
-        public Task<T> GetByIdAsync<T>(string id) where T : Entity
+        public Task<T> GetByIdAsync<T>(string id, params Expression<Func<T, object>>[] includeProperties) where T : Entity
         {
-            return _dbContext.Set<T>().SingleOrDefaultAsync(e => e.Id == id);
-        }
-        public T GetById<T>(string id) where T : Entity
-        {
-            return _dbContext.Set<T>().SingleOrDefault(e => e.Id == id);
+            IQueryable<T> query = _dbContext.Set<T>();
+            if(includeProperties.Any())
+            {
+                query = includeProperties.Aggregate(query, (current, i) => current.Include(i));
+            }
+            return query.SingleOrDefaultAsync(e => e.Id == id);
         }
         public async Task<T> AddAsync<T>(T entity) where T : class
         {
+            
             await _dbContext.Set<T>().AddAsync(entity);
             await _dbContext.SaveChangesAsync();
 
@@ -37,8 +39,6 @@ namespace Calendario.Infrastructure.Data
             _dbContext.Set<T>().Remove(entity);
             await _dbContext.SaveChangesAsync();
         }
-
-
 
         public async Task UpdateAsync<T>(T entity) where T : Entity
         {
@@ -55,16 +55,16 @@ namespace Calendario.Infrastructure.Data
                                 Expression<Func<T, bool>> queryPredicate = null,
                                 params Expression<Func<T, object>>[] includeProperties) where T : class
         {
-            IQueryable<T> values = _dbContext.Set<T>().AsNoTracking();
+            IQueryable<T> query = _dbContext.Set<T>().AsNoTracking();
             if(includeProperties.Any())
             {
-                values = includeProperties.Aggregate(values, (current, i) => current.Include(i));
+                query = includeProperties.Aggregate(query, (current, i) => current.Include(i));
             }
             if (queryPredicate != null)
             {
-                values = values.Where(queryPredicate);
+                query = query.Where(queryPredicate);
             }
-            return values.ToListAsync();
+            return query.ToListAsync();
         }
     }
 }

@@ -1,0 +1,57 @@
+﻿@page
+@model Calendario.Web.Areas.Admin.Pages.Users.EditModel
+@{
+    ViewData["Title"] = "Edit user";
+}
+<h4>Edit calendario user</h4>
+<hr />
+<div class="row">
+    <div class="col-md-4">
+        <form method="post">
+            <div asp-validation-summary="All" class="text-danger"></div>
+            <input type="hidden" asp-for="View.Id">
+            <div class="form-group">
+                <label asp-for="View.Login" class="control-label"></label>
+                <input asp-for="View.Login" class="form-control" readonly="true"></input>
+            </div>
+            <div class="form-group">
+                <label asp-for="View.GroupId" class="control-label"></label>
+                <select asp-for="View.GroupId" class="form-control" asp-items="Model.GroupsSL">
+                </select>
+                <span asp-validation-for="View.GroupId" class="text-danger">
+                </span>
+            </div>
+            <div class="form-group">
+                <label asp-for="View.Name" class="control-label"></label>
+                <input asp-for="View.Name" class="form-control"></input>
+            </div>
+            <div class="form-group">
+                <label asp-for="View.Surname" class="control-label"></label>
+                <input asp-for="View.Surname" class="form-control"></input>
+            </div>
+            <div class="form-group">
+                <label asp-for="View.Patronymic" class="control-label"></label>
+                <input asp-for="View.Patronymic" class="form-control"></input>
+            </div>
+            @if (Model.View.HasIdentity)
+            {
+                <div class="form-group">
+                    <label asp-for="View.NewPassword" class="control-label"></label>
+                    <input asp-for="View.NewPassword" class="form-control"></input>
+                </div>
+                <div class="form-group">
+                    <label asp-for="View.ConfirmPassword" class="control-label"></label>
+                    <input asp-for="View.ConfirmPassword" class="form-control"></input>
+                </div>
+            } else {
+                <a asp-page="Register" asp-route-calendarioId="@Model.View.Id">Register Identity</a>                
+            }
+            <button type="submit" class="btn btn-primary">Edit</button>
+        </form>
+
+
+    </div>
+</div>
+@section Scripts {
+<partial name="_ValidationScriptsPartial" />
+}

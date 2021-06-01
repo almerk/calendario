@@ -3,25 +3,19 @@ using System.Collections.Generic;
 using System.ComponentModel;
 using System.ComponentModel.DataAnnotations;
 using System.Linq;
-using System.Text;
-using System.Text.Encodings.Web;
 using System.Threading.Tasks;
 using Calendario.Core.Subjects;
 using Calendario.Infrastructure.Data;
 using Calendario.Infrastructure.Services.Account;
-using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
-using Microsoft.AspNetCore.Identity.UI.Services;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.RazorPages;
 using Microsoft.AspNetCore.Mvc.Rendering;
-using Microsoft.AspNetCore.WebUtilities;
 using Microsoft.Extensions.Logging;
 
 namespace Calendario.Web.Areas.Admin.Pages.Users
 {
-    [AllowAnonymous]
     //TODO: Auth this page only for admin
     public class RegisterModel : PageModel
     {
@@ -57,6 +51,7 @@ namespace Calendario.Web.Areas.Admin.Pages.Users
             [Required]
             [Display(Name = "Login")]
             public string Login { get; set; }
+            [Required]
             public string Name { get; set; }
             public string Surname { get; set; }
             public string Patronymic { get; set; }
@@ -75,7 +70,7 @@ namespace Calendario.Web.Areas.Admin.Pages.Users
 
         public SelectList GroupsSL { get; set; }
 
-        public async Task OnGetAsync(string userName = null, string calendarioId = null)
+        public async Task<IActionResult> OnGetAsync(string userName = null, string calendarioId = null)
         {
             await PopulateGroupsSelectList();
             if (userName != null)
@@ -83,7 +78,8 @@ namespace Calendario.Web.Areas.Admin.Pages.Users
                 IsIdentityNotExists = false;
                 var identityUser = _userManager.Users.FirstOrDefault(u => u.UserName == userName);
                 if (identityUser == null)
-                    throw new ApplicationException($"Unable to get identity user with username ${userName}.");
+                    return NotFound($"Unable to get identity user with username ${userName}.");
+    
                 Input.Login = userName;
                 Input.IsIdentityRequired = false;
             }
@@ -92,10 +88,11 @@ namespace Calendario.Web.Areas.Admin.Pages.Users
                 IsCalendarioNotExists = false;
                 HeaderMessage = $"Add identity user for existed calendario one";
                 var calendarioUser = await _repository.GetByIdAsync<User>(calendarioId);
-                if (calendarioId == null)
-                    throw new ApplicationException($"Unable to get calendario user with id '{calendarioId}'.");
+                if (calendarioUser == null)
+                    return NotFound($"Unable to get calendario user with id ${calendarioId}.");
                 Input.Login = calendarioUser.Login;
             }
+            return Page();
         }
 
         private async Task PopulateGroupsSelectList()
@@ -143,7 +140,6 @@ namespace Calendario.Web.Areas.Admin.Pages.Users
                     }
                 }
             }
-            await PopulateGroupsSelectList();
             return Page();
         }
     }

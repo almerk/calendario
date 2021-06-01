@@ -54,6 +54,7 @@
                         @Html.DisplayFor(modelItem => item.GroupName)
                     </td>
                     <td>
+                        <a asp-page="Edit" asp-route-userId="@item.Id">Edit</a>
                         @if(Model.CalendarioUsersWithNoIdentity.Contains(item))
                         {
                             <a asp-page="Register" asp-route-calendarioId="@item.Id">Register Identity</a>
