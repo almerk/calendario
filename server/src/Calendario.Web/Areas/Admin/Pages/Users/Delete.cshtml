@@ -1,0 +1,10 @@
+﻿@page
+@model Calendario.Web.Areas.Admin.Pages.Users.DeleteModel
+@{
+    ViewData["Title"] = "Delete user";
+}
+<h4>@Model.Message</h4>
+<form method="post">
+    <input type="submit" value="Delete" class="btn btn-danger" /> |
+    <a asp-page="./Index">Back to List</a>
+</form>
