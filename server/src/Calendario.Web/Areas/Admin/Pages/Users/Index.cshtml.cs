@@ -5,6 +5,7 @@ using System.Linq;
 using System.Threading.Tasks;
 using Calendario.Core.Subjects;
 using Calendario.Infrastructure.Data;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc.RazorPages;
 using Microsoft.EntityFrameworkCore;
@@ -12,10 +13,9 @@ using Microsoft.Extensions.Logging;
 
 namespace Calendario.Web.Areas.Admin.Pages.Users
 {
+    [Authorize(Policy = "Admin")]
     public class IndexModel : PageModel
     {
-        //TODO: Show list of users with no identity
-        //TODO: Show list of identity users with no calendario account
         private readonly UserManager<IdentityUser> _userManager;
         private readonly IRepository _repo;
         private readonly ILogger<IndexModel> _logger;

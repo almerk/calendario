@@ -16,7 +16,7 @@ using Microsoft.Extensions.Logging;
 
 namespace Calendario.Web.Areas.Admin.Pages.Users
 {
-    //TODO: Auth this page only for admin
+    [Authorize(Policy = "Admin")]
     public class RegisterModel : PageModel
     {
         private readonly UserManager<IdentityUser> _userManager;

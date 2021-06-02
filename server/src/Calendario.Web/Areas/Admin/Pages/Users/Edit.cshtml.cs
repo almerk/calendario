@@ -7,6 +7,7 @@ using Calendario.Core.Subjects;
 using Calendario.Infrastructure.Data;
 using Calendario.Infrastructure.Services.Account;
 using Calendario.Web.Areas.Admin.Pages.Users;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.RazorPages;
@@ -16,6 +17,7 @@ using Microsoft.Extensions.Logging;
 
 namespace Calendario.Web.Areas.Admin.Pages.Users
 {
+    [Authorize(Policy = "Admin")]
     public class EditModel : PageModel
     {
         private readonly UserManager<IdentityUser> _userManager;
@@ -60,6 +62,7 @@ namespace Calendario.Web.Areas.Admin.Pages.Users
 
         [BindProperty]
         public CalendarioUserVM View { get; set; }
+        
         public SelectList GroupsSL { get; set; }
 
         public async Task<IActionResult> OnGetAsync([Required] string userId)
@@ -95,7 +98,7 @@ namespace Calendario.Web.Areas.Admin.Pages.Users
                     throw new ApplicationException("Unable to find selected group.");
                 }
                 var editedUser = new User()
-                {
+               {
                     Id = View.Id,
                     Group = group,
                     Login = View.Login,
@@ -104,8 +107,27 @@ namespace Calendario.Web.Areas.Admin.Pages.Users
                     Patronymic = View.Patronymic
                 };
                 await _repository.UpdateAsync(editedUser);
+                if (View.NewPassword != null)
+                {
+                    var identityUser = await _userManager.Users.FirstOrDefaultAsync(u => u.UserName == View.Login);
+                    if (identityUser != null)
+                    {
+                        string code = await _userManager.GeneratePasswordResetTokenAsync(identityUser);
+                        var result = await _userManager.ResetPasswordAsync(identityUser, code, View.NewPassword);
+                        if (!result.Succeeded)
+                        {
+                            foreach (var error in result.Errors)
+                            {
+                                ModelState.AddModelError("", error.Description);
+                            }
+                            await PopulateGroupsSelectList();             
+                            return Page();
+                        }
+                    }
+                }
             }
             await PopulateGroupsSelectList();
+            _logger.LogInformation($"Updated information for user '${View.Login}'");
             return RedirectToPage("Index");
         }
 

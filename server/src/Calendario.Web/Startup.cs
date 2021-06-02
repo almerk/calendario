@@ -15,6 +15,7 @@ using Microsoft.OpenApi.Models;
 using SharedUtils.Configuration;
 using Calendario.Infrastructure;
 using Calendario.Infrastructure.Services.Account;
+using Microsoft.AspNetCore.Authorization;
 
 namespace Calendario.Web
 {
@@ -34,9 +35,9 @@ namespace Calendario.Web
         {
 
             services.AddIdentityServices(Configuration);
-
+            var calendarioConfiguration = Configuration.GetCalendarioConfiguration();
             services.AddAppDbContext(Configuration.GetPostgresConnectionString());
-            services.AddAppConfiguration(Configuration.GetCalendarioConfiguration());
+            services.AddAppConfiguration(calendarioConfiguration);
 
             services.AddScoped<RegisterUserService>();
             services.AddAppDbInitialSeedService();
@@ -47,9 +48,19 @@ namespace Calendario.Web
 
             services.AddSwaggerGen(c =>
             {
-                c.SwaggerDoc("v1", new OpenApiInfo { Title = "Calendario.Web", Version = "v1" });
+                c.SwaggerDoc("v1", new OpenApiInfo { Title = "Calendario Web API", Version = "v1" });
             });
 
+            services.AddAuthorization(options =>
+            {
+                options.FallbackPolicy = new AuthorizationPolicyBuilder()
+                .RequireAuthenticatedUser()
+                .Build();
+                options.AddPolicy("Admin", x =>
+                {
+                    x.RequireUserName(calendarioConfiguration.AdminLogin);
+                });
+            });
         }
         public void Configure(IApplicationBuilder app, IWebHostEnvironment env)
         {

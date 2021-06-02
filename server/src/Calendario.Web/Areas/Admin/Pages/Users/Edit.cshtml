@@ -43,8 +43,12 @@
                     <label asp-for="View.ConfirmPassword" class="control-label"></label>
                     <input asp-for="View.ConfirmPassword" class="form-control"></input>
                 </div>
-            } else {
-                <a asp-page="Register" asp-route-calendarioId="@Model.View.Id">Register Identity</a>                
+            }
+            else
+            {
+                <div>
+                    <a asp-page="Register" asp-route-calendarioId="@Model.View.Id">Register Identity</a>
+                </div>
             }
             <button type="submit" class="btn btn-primary">Edit</button>
         </form>
