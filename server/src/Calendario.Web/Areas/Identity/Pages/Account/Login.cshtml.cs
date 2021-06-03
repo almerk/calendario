@@ -11,6 +11,9 @@ using Microsoft.AspNetCore.Identity.UI.Services;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.RazorPages;
 using Microsoft.Extensions.Logging;
+using Calendario.Infrastructure.Data;
+using Calendario.Core.Subjects;
+using System.Security.Claims;
 
 namespace Calendario.Web.Areas.Identity.Pages.Account
 {
@@ -20,20 +23,23 @@ namespace Calendario.Web.Areas.Identity.Pages.Account
         private readonly UserManager<IdentityUser> _userManager;
         private readonly SignInManager<IdentityUser> _signInManager;
         private readonly ILogger<LoginModel> _logger;
-
-        public LoginModel(SignInManager<IdentityUser> signInManager, 
+        private readonly IRepository _repository;
+        private readonly Infrastructure.Configuration _configuration;
+        public LoginModel(SignInManager<IdentityUser> signInManager,
             ILogger<LoginModel> logger,
-            UserManager<IdentityUser> userManager)
+            UserManager<IdentityUser> userManager, 
+            IRepository repository, 
+            Infrastructure.Configuration configuration)
         {
             _userManager = userManager;
             _signInManager = signInManager;
             _logger = logger;
+            _repository = repository;
+            _configuration = configuration;
         }
 
         [BindProperty]
         public InputModel Input { get; set; }
-
-        public IList<AuthenticationScheme> ExternalLogins { get; set; }
 
         public string ReturnUrl { get; set; }
 
@@ -43,7 +49,7 @@ namespace Calendario.Web.Areas.Identity.Pages.Account
         public class InputModel
         {
             [Required]
-            [Display(Name="User Name")]
+            [Display(Name = "User Name")]
             public string UserName { get; set; }
 
             [Required]
@@ -65,9 +71,6 @@ namespace Calendario.Web.Areas.Identity.Pages.Account
 
             // Clear the existing external cookie to ensure a clean login process
             await HttpContext.SignOutAsync(IdentityConstants.ExternalScheme);
-
-            ExternalLogins = (await _signInManager.GetExternalAuthenticationSchemesAsync()).ToList();
-
             ReturnUrl = returnUrl;
         }
 
@@ -75,21 +78,25 @@ namespace Calendario.Web.Areas.Identity.Pages.Account
         {
             returnUrl ??= Url.Content("~/");
 
-            ExternalLogins = (await _signInManager.GetExternalAuthenticationSchemesAsync()).ToList();
-        
             if (ModelState.IsValid)
             {
+                var calendarioUser = (await _repository.ListAsync<User>(x => x.Login == Input.UserName, x => x.Group)).FirstOrDefault();
+                if(calendarioUser == null)
+                {
+                    ModelState.AddModelError(string.Empty, "Invalid login attempt.");
+                    return Page();
+                }
                 // This doesn't count login failures towards account lockout
                 // To enable password failures to trigger account lockout, set lockoutOnFailure: true
                 var result = await _signInManager.PasswordSignInAsync(Input.UserName, Input.Password, Input.RememberMe, lockoutOnFailure: false);
                 if (result.Succeeded)
                 {
+                    //!does not work
+                    var identity = HttpContext.User.Identity as ClaimsIdentity;
+                        identity.Claims.Append(new Claim(Authorization.Constants.UserIdClaim, calendarioUser.Id));
                     _logger.LogInformation("User logged in.");
+                    //TODO:Add temp calendario claim here
                     return LocalRedirect(returnUrl);
-                }
-                if (result.RequiresTwoFactor)
-                {
-                    return RedirectToPage("./LoginWith2fa", new { ReturnUrl = returnUrl, RememberMe = Input.RememberMe });
                 }
                 if (result.IsLockedOut)
                 {
@@ -102,7 +109,6 @@ namespace Calendario.Web.Areas.Identity.Pages.Account
                     return Page();
                 }
             }
-
             // If we got this far, something failed, redisplay form
             return Page();
         }

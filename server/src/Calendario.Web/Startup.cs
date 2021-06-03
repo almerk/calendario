@@ -53,9 +53,11 @@ namespace Calendario.Web
 
             services.AddAuthorization(options =>
             {
-                options.FallbackPolicy = new AuthorizationPolicyBuilder()
-                .RequireAuthenticatedUser()
-                .Build();
+                options.FallbackPolicy =
+                    new AuthorizationPolicyBuilder()
+                    .RequireAuthenticatedUser()
+                    //.RequireClaim(Authorization.Constants.UserIdClaim)
+                    .Build();
                 options.AddPolicy("Admin", x =>
                 {
                     x.RequireUserName(calendarioConfiguration.AdminLogin);

@@ -4,6 +4,7 @@ using System.ComponentModel.DataAnnotations;
 using System.Linq;
 using System.Threading.Tasks;
 using Calendario.Core.Subjects;
+using Calendario.Infrastructure;
 using Calendario.Infrastructure.Data;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
@@ -16,10 +17,12 @@ namespace Calendario.Web.Areas.Admin.Pages.Users
     {
 
         private readonly IRepository _repository;
+        private readonly Configuration _configuration;
 
-        public DeleteModel(IRepository repository)
+        public DeleteModel(IRepository repository, Configuration configuration)
         {
             _repository = repository;
+            _configuration = configuration;
         }
 
         public string Message { get; set; }
@@ -39,6 +42,10 @@ namespace Calendario.Web.Areas.Admin.Pages.Users
             if (user == null)
             {
                 return NotFound();
+            }
+            if (user.Login == _configuration.AdminLogin)
+            {
+                return Forbid();
             }
             await _repository.DeleteAsync(user);
             return RedirectToPage("./Index");
