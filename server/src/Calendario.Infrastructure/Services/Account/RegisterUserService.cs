@@ -78,6 +78,10 @@ namespace Calendario.Infrastructure.Services.Account
                 return identityResult;
             }
             var calendarioResult = await RegisterCalendarioUser(model);
+            if(calendarioResult.IsSuccess)
+            {
+                await AddCalendarioClaimsToIdentity(model.Login, calendarioResult.Result);
+            }
             return calendarioResult;
         }
         public async Task<RegisterResult> RegisterIdentityUser(RegisterModel model)
@@ -142,5 +146,19 @@ namespace Calendario.Infrastructure.Services.Account
             return res;
         }
 
+        public async Task AddCalendarioClaimsToIdentity(string login, User calendarioUser = null)
+        {
+            calendarioUser ??= (await _repository.ListAsync<User>(x => EF.Functions.Like(x.Login, login))).FirstOrDefault();
+            if (calendarioUser == null)
+            {
+                return;
+            }
+            var identityUser = await _userManager.FindByNameAsync(login);
+            if (identityUser == null)
+            {
+                return;
+            }
+            await _userManager.AddClaimAsync(identityUser, new System.Security.Claims.Claim("calendario-user-id", calendarioUser.Id));
+        }
     }
 }

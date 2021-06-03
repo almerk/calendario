@@ -7,6 +7,7 @@ using Calendario.Core.Subjects;
 using Calendario.Infrastructure;
 using Calendario.Infrastructure.Data;
 using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.RazorPages;
 
@@ -18,11 +19,12 @@ namespace Calendario.Web.Areas.Admin.Pages.Users
 
         private readonly IRepository _repository;
         private readonly Configuration _configuration;
-
-        public DeleteModel(IRepository repository, Configuration configuration)
+        private readonly UserManager<IdentityUser> _userManager;
+        public DeleteModel(IRepository repository, Configuration configuration, UserManager<IdentityUser> userManager)
         {
             _repository = repository;
             _configuration = configuration;
+            _userManager = userManager;
         }
 
         public string Message { get; set; }
@@ -47,6 +49,13 @@ namespace Calendario.Web.Areas.Admin.Pages.Users
             {
                 return Forbid();
             }
+            var identityUser = await _userManager.FindByNameAsync(user.Login);
+            if (identityUser != null)
+            {
+                var userClaim = (await _userManager.GetClaimsAsync(identityUser)).FirstOrDefault(x => x.Type == "calendario-user-id");
+                await _userManager.RemoveClaimAsync(identityUser, userClaim);
+            }
+
             await _repository.DeleteAsync(user);
             return RedirectToPage("./Index");
         }

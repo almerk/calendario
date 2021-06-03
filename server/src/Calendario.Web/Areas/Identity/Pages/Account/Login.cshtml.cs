@@ -92,8 +92,8 @@ namespace Calendario.Web.Areas.Identity.Pages.Account
                 if (result.Succeeded)
                 {
                     //!does not work
-                    var identity = HttpContext.User.Identity as ClaimsIdentity;
-                        identity.Claims.Append(new Claim(Authorization.Constants.UserIdClaim, calendarioUser.Id));
+                   // var identity = HttpContext.User.Identity as ClaimsIdentity;
+                     //   identity.Claims.Append(new Claim(Authorization.Constants.UserIdClaim, calendarioUser.Id));
                     _logger.LogInformation("User logged in.");
                     //TODO:Add temp calendario claim here
                     return LocalRedirect(returnUrl);

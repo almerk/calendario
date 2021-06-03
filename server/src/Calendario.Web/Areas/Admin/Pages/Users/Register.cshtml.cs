@@ -63,7 +63,7 @@ namespace Calendario.Web.Areas.Admin.Pages.Users
             [DataType(DataType.Password)]
             [Display(Name = "Confirm password")]
             [Compare("Password", ErrorMessage = "The password and confirmation password do not match.")]
-            public string ConfirmPassword { get; set; }
+            public string ConfirmPassword { get; set; } = string.Empty;
             [DisplayName("Is Identity user required")]
             public bool IsIdentityRequired { get; set; } = true;
         }
@@ -79,7 +79,7 @@ namespace Calendario.Web.Areas.Admin.Pages.Users
                 var identityUser = _userManager.Users.FirstOrDefault(u => u.UserName == userName);
                 if (identityUser == null)
                     return NotFound($"Unable to get identity user with username ${userName}.");
-    
+
                 Input.Login = userName;
                 Input.IsIdentityRequired = false;
             }
@@ -125,6 +125,7 @@ namespace Calendario.Web.Areas.Admin.Pages.Users
                                                           await _registerService.RegisterCalendarioUser(user);
                 if (result.IsSuccess)
                 {
+                    await _registerService.AddCalendarioClaimsToIdentity(user.Login, result.Result);
                     _logger.LogInformation($"Created user {Input.Login}.");
                     return RedirectToPage("./Index");
                 }
